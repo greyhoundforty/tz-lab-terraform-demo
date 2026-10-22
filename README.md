@@ -1,6 +1,6 @@
 # Power Virtual Server lab
 
-The session clock is the [90-minute timeline](https://images.gh40-dev.systems/timeline.html). The six blocks below follow that page. Students work from the jump host. The instructor applies `bootstrap/` before class.
+The session clock is [`lab/timeline.html`](lab/timeline.html). Each block lists the commands to run and the result to expect. Students work from the jump host. The instructor applies `bootstrap/` before class. The same page is published at https://images.gh40-dev.systems/timeline.html when that host is updated.
 
 | Minutes | Block | Where the value goes |
 | --- | --- | --- |
