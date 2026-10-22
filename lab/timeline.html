@@ -59,11 +59,10 @@
     .lab-scale {
       display: grid;
       grid-template-columns:
-        minmax(5.5rem, 10fr)
+        minmax(7rem, 15fr)
+        minmax(4.5rem, 5fr)
+        minmax(10rem, 30fr)
         minmax(8rem, 25fr)
-        minmax(4.75rem, 5fr)
-        minmax(8rem, 25fr)
-        minmax(6rem, 10fr)
         minmax(7rem, 15fr);
       gap: 0.25rem;
       margin: 0 0 2.5rem;
@@ -305,7 +304,7 @@
   <main class="lab-page">
     <p class="lab-kicker">90-minute lab</p>
     <h1>Power Virtual Server session</h1>
-    <p class="lab-lede">Each student SSHes to a VPC virtual server that already has the IBM Cloud CLI, the PowerVS plugin, Terraform, and Ansible. They confirm the datacenter, create the workspace and transit gateway, import an AIX image name and SSH key from the CLI, then add the AIX server and a data volume and check connectivity.</p>
+    <p class="lab-lede">The VPC and the Ubuntu server already exist. Each student starts in IBM Cloud Shell, then SSHes to that server. Terraform creates the PowerVS workspace, the PowerVS SSH key, the transit gateway, and the AIX server. It does not create a VPC.</p>
     <div class="lab-tags">
       <span class="cds--tag cds--tag--blue">IBM Cloud CLI</span>
       <span class="cds--tag cds--tag--purple">Terraform</span>
@@ -318,32 +317,27 @@
       <div class="lab-scale">
         <div class="lab-scale__seg lab-scale__seg--cli">
           <span class="lab-scale__bar"></span>
-          <span class="lab-scale__name">Datacenter</span>
-          <span class="lab-scale__mins">10 min</span>
+          <span class="lab-scale__name">Cloud Shell</span>
+          <span class="lab-scale__mins">15 min</span>
+        </div>
+        <div class="lab-scale__seg lab-scale__seg--cli">
+          <span class="lab-scale__bar"></span>
+          <span class="lab-scale__name">SSH</span>
+          <span class="lab-scale__mins">5 min</span>
         </div>
         <div class="lab-scale__seg lab-scale__seg--terraform">
           <span class="lab-scale__bar"></span>
           <span class="lab-scale__name">Workspace and gateway</span>
-          <span class="lab-scale__mins">25 min</span>
-        </div>
-        <div class="lab-scale__seg lab-scale__seg--cli">
-          <span class="lab-scale__bar"></span>
-          <span class="lab-scale__name">Image and key</span>
-          <span class="lab-scale__mins">5 min</span>
+          <span class="lab-scale__mins">30 min</span>
         </div>
         <div class="lab-scale__seg lab-scale__seg--terraform">
           <span class="lab-scale__bar"></span>
           <span class="lab-scale__name">AIX server</span>
           <span class="lab-scale__mins">25 min</span>
         </div>
-        <div class="lab-scale__seg lab-scale__seg--terraform">
+        <div class="lab-scale__seg lab-scale__seg--cli">
           <span class="lab-scale__bar"></span>
-          <span class="lab-scale__name">Data volume</span>
-          <span class="lab-scale__mins">10 min</span>
-        </div>
-        <div class="lab-scale__seg lab-scale__seg--ansible">
-          <span class="lab-scale__bar"></span>
-          <span class="lab-scale__name">Connectivity</span>
+          <span class="lab-scale__name">Confirm</span>
           <span class="lab-scale__mins">15 min</span>
         </div>
       </div>
@@ -354,42 +348,70 @@
       <ol class="lab-steps cds--progress cds--progress--vertical">
         <li class="lab-step cds--progress-step cds--progress-step--current">
           <div class="lab-step__time">
-            <span class="lab-step__range">0–10</span>
-            <span class="lab-step__length">10 min</span>
+            <span class="lab-step__range">0–15</span>
+            <span class="lab-step__length">15 min</span>
           </div>
           <div class="lab-step__rail" aria-hidden="true"><span class="lab-step__index">1</span></div>
           <article class="cds--tile lab-step__card">
             <div class="lab-step__heading">
               <div class="lab-step__icons" aria-hidden="true">
                 <svg class="lab-icon"><use href="#icon-terminal"></use></svg>
-                <svg class="lab-icon"><use href="#icon-catalog"></use></svg>
+                <svg class="lab-icon"><use href="#icon-credentials"></use></svg>
               </div>
               <div>
-                <h3>Confirm the datacenter and create an RSA key</h3>
+                <h3>Prepare Cloud Shell</h3>
                 <div class="lab-tags">
                   <span class="cds--tag cds--tag--blue cds--tag--sm">IBM Cloud CLI</span>
                 </div>
               </div>
             </div>
-            <p>SSH to the jump host. Log the CLI into the student account, confirm <code>dal12</code>, and generate the key Terraform will import later. The image catalog waits until a workspace exists.</p>
+            <p>Log in to the IBM Cloud portal and open Cloud Shell. Create an RSA key and an API key, install the PowerVS plugin, and read the existing VPC and virtual server.</p>
             <p class="lab-label">Run</p>
-            <pre><code>export IC_API_KEY="..."
-ibmcloud login --apikey "$IC_API_KEY" -r us-south
-ibmcloud plugin list
-ibmcloud pi workspace context
-ibmcloud pi datacenter list
-ssh-keygen -t rsa -b 4096 -f ~/.ssh/pvs-lab -N ""</code></pre>
+            <pre><code>ssh-keygen -t rsa -b 4096 -f ~/.ssh/pvs-lab -N ""
+ibmcloud iam api-key-create pvs-lab -d "PowerVS lab" --file ./pvs-lab-apikey.json
+ibmcloud plugin install power-iaas -f
+ibmcloud is vpcs
+ibmcloud is instances</code></pre>
             <p class="lab-label">Expect</p>
-            <p class="lab-result"><code>power-iaas</code> is in the plugin list. <code>ibmcloud pi workspace context</code> prints <code>CRN is not set</code>. The datacenter table lists <code>dal12</code> as <code>active</code>. <code>~/.ssh/pvs-lab.pub</code> starts with <code>ssh-rsa</code>.</p>
+            <p class="lab-result"><code>~/.ssh/pvs-lab.pub</code> starts with <code>ssh-rsa</code>. The API key file contains <code>apikey</code>. <code>power-iaas</code> is in <code>ibmcloud plugin list</code>. <code>ibmcloud is vpcs</code> shows the VPC name for <code>vpc_name</code>. <code>ibmcloud is instances</code> shows the Ubuntu server and its floating IP.</p>
           </article>
         </li>
 
         <li class="lab-step cds--progress-step cds--progress-step--incomplete">
           <div class="lab-step__time">
-            <span class="lab-step__range">10–35</span>
-            <span class="lab-step__length">25 min</span>
+            <span class="lab-step__range">15–20</span>
+            <span class="lab-step__length">5 min</span>
           </div>
           <div class="lab-step__rail" aria-hidden="true"><span class="lab-step__index">2</span></div>
+          <article class="cds--tile lab-step__card">
+            <div class="lab-step__heading">
+              <div class="lab-step__icons" aria-hidden="true">
+                <svg class="lab-icon"><use href="#icon-server"></use></svg>
+              </div>
+              <div>
+                <h3>SSH to the existing server</h3>
+                <div class="lab-tags">
+                  <span class="cds--tag cds--tag--blue cds--tag--sm">IBM Cloud CLI</span>
+                </div>
+              </div>
+            </div>
+            <p>The server already authorizes the Cloud Shell public key. Terraform, Ansible, the IBM Cloud CLI, the PowerVS plugin, and this repo are already installed.</p>
+            <p class="lab-label">Run</p>
+            <pre><code>ssh -i ~/.ssh/pvs-lab ubuntu@&lt;floating-ip&gt;
+terraform version
+ibmcloud plugin list
+ls lab/terraform</code></pre>
+            <p class="lab-label">Expect</p>
+            <p class="lab-result">The login user is <code>ubuntu</code>. Terraform and <code>power-iaas</code> are present. <code>lab/terraform</code> is the stack to apply.</p>
+          </article>
+        </li>
+
+        <li class="lab-step cds--progress-step cds--progress-step--incomplete">
+          <div class="lab-step__time">
+            <span class="lab-step__range">20–50</span>
+            <span class="lab-step__length">30 min</span>
+          </div>
+          <div class="lab-step__rail" aria-hidden="true"><span class="lab-step__index">3</span></div>
           <article class="cds--tile lab-step__card">
             <div class="lab-step__heading">
               <div class="lab-step__icons" aria-hidden="true">
@@ -397,120 +419,60 @@ ssh-keygen -t rsa -b 4096 -f ~/.ssh/pvs-lab -N ""</code></pre>
                 <svg class="lab-icon"><use href="#icon-network"></use></svg>
               </div>
               <div>
-                <h3>Create the workspace and transit gateway</h3>
+                <h3>Create the workspace, SSH key, and transit gateway</h3>
                 <div class="lab-tags">
                   <span class="cds--tag cds--tag--purple cds--tag--sm">Terraform</span>
                 </div>
               </div>
             </div>
-            <p>First plan and apply. <code>create_instance</code> stays false, so this pass builds the network path and leaves the AIX server out. Read <code>workspace.tf</code> and <code>gateway.tf</code> while the workspace comes up.</p>
+            <p>First plan and apply. <code>aix_image_name</code> stays empty, so the AIX server stays out of this plan. Terraform reads the existing VPC and does not create one. Read <code>workspace.tf</code> and <code>gateway.tf</code> while the workspace comes up.</p>
             <p class="lab-label">Run</p>
-            <pre><code># lab/terraform/terraform.tfvars
-create_instance    = false
-attach_data_volume = false
-
+            <pre><code>export IC_API_KEY="$(jq -r .apikey ~/pvs-lab-apikey.json)"
 cd lab/terraform
+cp terraform.tfvars.example terraform.tfvars
+# set vpc_name and ssh_public_key; leave aix_image_name empty
+
 terraform init
 terraform plan
 terraform apply</code></pre>
             <p class="lab-label">Expect</p>
-            <p class="lab-result">The plan is the PowerVS workspace, the private subnet, the transit gateway, both connections, and the VPC route. Apply finishes with the workspace CRN in the outputs. Copy that CRN for the next step.</p>
+            <p class="lab-result">The plan adds the PowerVS workspace, private network, PowerVS SSH key, transit gateway, both connections, and a delegate route on the existing VPC. Apply prints <code>workspace_crn</code>.</p>
           </article>
         </li>
 
         <li class="lab-step cds--progress-step cds--progress-step--incomplete">
           <div class="lab-step__time">
-            <span class="lab-step__range">35–40</span>
-            <span class="lab-step__length">5 min</span>
-          </div>
-          <div class="lab-step__rail" aria-hidden="true"><span class="lab-step__index">3</span></div>
-          <article class="cds--tile lab-step__card">
-            <div class="lab-step__heading">
-              <div class="lab-step__icons" aria-hidden="true">
-                <svg class="lab-icon"><use href="#icon-credentials"></use></svg>
-              </div>
-              <div>
-                <h3>Copy an AIX image and import the SSH key</h3>
-                <div class="lab-tags">
-                  <span class="cds--tag cds--tag--blue cds--tag--sm">IBM Cloud CLI</span>
-                </div>
-              </div>
-            </div>
-            <p>Target the new workspace, list the stock images, and import the RSA public key. Write the image name and key name into <code>lab/terraform/terraform.tfvars</code>.</p>
-            <p class="lab-label">Run</p>
-            <pre><code>ibmcloud pi workspace target "&lt;workspace_crn&gt;"
-ibmcloud pi workspace context
-ibmcloud pi image list-catalog
-ibmcloud pi ssh-key create pvs-lab --key "$(cat ~/.ssh/pvs-lab.pub)"
-
-# lab/terraform/terraform.tfvars
-aix_image_name     = "&lt;name from image list-catalog&gt;"
-ssh_key_name       = "pvs-lab"
-create_instance    = true
-attach_data_volume = false</code></pre>
-            <p class="lab-label">Expect</p>
-            <p class="lab-result"><code>workspace context</code> prints the CRN you just targeted. <code>image list-catalog</code> lists stock images; copy one AIX name exactly. <code>ssh-key create</code> reports the key <code>pvs-lab</code> in that workspace. <code>ibmcloud pi ssh-key list</code> shows the same name.</p>
-          </article>
-        </li>
-
-        <li class="lab-step cds--progress-step cds--progress-step--incomplete">
-          <div class="lab-step__time">
-            <span class="lab-step__range">40–65</span>
+            <span class="lab-step__range">50–75</span>
             <span class="lab-step__length">25 min</span>
           </div>
           <div class="lab-step__rail" aria-hidden="true"><span class="lab-step__index">4</span></div>
           <article class="cds--tile lab-step__card">
             <div class="lab-step__heading">
               <div class="lab-step__icons" aria-hidden="true">
+                <svg class="lab-icon"><use href="#icon-catalog"></use></svg>
                 <svg class="lab-icon"><use href="#icon-server"></use></svg>
               </div>
               <div>
                 <h3>Create the AIX virtual server</h3>
                 <div class="lab-tags">
+                  <span class="cds--tag cds--tag--blue cds--tag--sm">IBM Cloud CLI</span>
                   <span class="cds--tag cds--tag--purple cds--tag--sm">Terraform</span>
                 </div>
               </div>
             </div>
-            <p>Second plan and apply. Read <code>instance.tf</code> while the AIX server provisions.</p>
+            <p>Target the new workspace, copy an AIX image name, and apply again. Read <code>instance.tf</code> while the server provisions.</p>
             <p class="lab-label">Run</p>
-            <pre><code>cd lab/terraform
+            <pre><code>ibmcloud login --apikey "$IC_API_KEY" -r us-south
+ibmcloud pi workspace target "&lt;workspace_crn&gt;"
+ibmcloud pi image list-catalog
+
+# lab/terraform/terraform.tfvars
+aix_image_name = "&lt;name from image list-catalog&gt;"
+
 terraform plan
 terraform apply</code></pre>
             <p class="lab-label">Expect</p>
-            <p class="lab-result">The plan adds the AIX virtual server. The workspace, subnet, and transit gateway stay unchanged. Apply finishes with the server’s private IP in the outputs. That address is what Ansible uses.</p>
-          </article>
-        </li>
-
-        <li class="lab-step cds--progress-step cds--progress-step--incomplete">
-          <div class="lab-step__time">
-            <span class="lab-step__range">65–75</span>
-            <span class="lab-step__length">10 min</span>
-          </div>
-          <div class="lab-step__rail" aria-hidden="true"><span class="lab-step__index">5</span></div>
-          <article class="cds--tile lab-step__card">
-            <div class="lab-step__heading">
-              <div class="lab-step__icons" aria-hidden="true">
-                <svg class="lab-icon"><use href="#icon-volume"></use></svg>
-              </div>
-              <div>
-                <h3>Attach a data volume</h3>
-                <div class="lab-tags">
-                  <span class="cds--tag cds--tag--purple cds--tag--sm">Terraform</span>
-                  <span class="cds--tag cds--tag--blue cds--tag--sm">IBM Cloud CLI</span>
-                </div>
-              </div>
-            </div>
-            <p>Third plan and apply. The volume and its attachment are new resources. The AIX server stays in place.</p>
-            <p class="lab-label">Run</p>
-            <pre><code># lab/terraform/terraform.tfvars
-attach_data_volume = true
-
-cd lab/terraform
-terraform plan
-terraform apply
-ibmcloud pi volume list</code></pre>
-            <p class="lab-label">Expect</p>
-            <p class="lab-result">The plan adds the data volume and the attachment. The AIX server stays unchanged. <code>ibmcloud pi volume list</code> shows the new volume in the targeted workspace.</p>
+            <p class="lab-result">The catalog lists stock images. The plan adds the image copy and the AIX server. The workspace, SSH key, and transit gateway stay in place. <code>ibmcloud pi ssh-key list</code> shows the key Terraform imported.</p>
           </article>
         </li>
 
@@ -519,26 +481,26 @@ ibmcloud pi volume list</code></pre>
             <span class="lab-step__range">75–90</span>
             <span class="lab-step__length">15 min</span>
           </div>
-          <div class="lab-step__rail" aria-hidden="true"><span class="lab-step__index">6</span></div>
+          <div class="lab-step__rail" aria-hidden="true"><span class="lab-step__index">5</span></div>
           <article class="cds--tile lab-step__card">
             <div class="lab-step__heading">
               <div class="lab-step__icons" aria-hidden="true">
-                <svg class="lab-icon"><use href="#icon-code"></use></svg>
                 <svg class="lab-icon"><use href="#icon-checkmark"></use></svg>
               </div>
               <div>
-                <h3>Check connectivity from the jump host</h3>
+                <h3>Confirm the workspace and the server</h3>
                 <div class="lab-tags">
-                  <span class="cds--tag cds--tag--teal cds--tag--sm">Ansible</span>
+                  <span class="cds--tag cds--tag--blue cds--tag--sm">IBM Cloud CLI</span>
                 </div>
               </div>
             </div>
-            <p>Run the playbook from the jump host. It logs in as <code>root</code> with the key imported into PowerVS.</p>
+            <p>The PowerVS plugin is still targeted at the workspace from the previous step.</p>
             <p class="lab-label">Run</p>
-            <pre><code>cd lab/ansible
-ansible-playbook playbook.yml</code></pre>
+            <pre><code>ibmcloud pi workspace context
+ibmcloud pi instance list
+ibmcloud pi ssh-key list</code></pre>
             <p class="lab-label">Expect</p>
-            <p class="lab-result">The play retries until port 22 accepts the connection. <code>oslevel -s</code> prints an AIX level. Ping of the jump host’s private IP gets a reply. <code>lspv</code> lists the data volume.</p>
+            <p class="lab-result">The context CRN matches <code>workspace_crn</code>. The instance list shows the AIX server. The SSH key list shows the key created from the Cloud Shell public key.</p>
           </article>
         </li>
       </ol>
