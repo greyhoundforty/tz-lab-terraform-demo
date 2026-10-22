@@ -30,9 +30,14 @@ write_files:
       rm -f /tmp/terraform.zip
 
       curl -fsSL https://clis.cloud.ibm.com/install/linux | sh
-      install -d -o root -g root -m 0755 /opt/ibmcloud
+      # Shared CLI home. Plugin install runs as root and writes config mode 0600.
+      # Group ubuntu is the SSH user's primary group, so this session can read it.
+      install -d -o root -g ubuntu -m 2775 /opt/ibmcloud
       ibmcloud config --check-version=false
       ibmcloud plugin install power-iaas -f
+      chgrp -R ubuntu /opt/ibmcloud
+      chmod -R g+rwX /opt/ibmcloud
+      find /opt/ibmcloud -type d -exec chmod 2775 {} +
 
       {
         echo "terraform: $(/usr/local/bin/terraform version)"
