@@ -21,6 +21,8 @@ write_files:
       apt-get update
       apt-get install -y ansible || apt-get install -y ansible-core
 
+      terraform_version="1.14.5"
+
       curl -fsSL -o /tmp/terraform.zip \
         "https://releases.hashicorp.com/terraform/${terraform_version}/terraform_${terraform_version}_linux_amd64.zip"
       unzip -o /tmp/terraform.zip -d /usr/local/bin
