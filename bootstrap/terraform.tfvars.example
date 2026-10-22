@@ -1,0 +1,7 @@
+# Copy to terraform.tfvars. That file is gitignored.
+# ibmcloud_api_key can be omitted when IC_API_KEY is set in the environment.
+
+prefix          = "pvs-lab"
+region          = "us-south"
+ssh_public_key  = "ssh-ed25519 AAAA... lab-jump"
+ssh_source_cidr = "0.0.0.0/0"

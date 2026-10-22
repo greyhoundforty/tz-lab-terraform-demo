@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PowerVS lab timeline</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&amp;family=IBM+Plex+Sans:wght@400;600&amp;display=swap">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@carbon/styles@1.92.0/css/styles.css">
+  <style>
+    body {
+      line-height: 1.5;
+      font-family: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+    }
+
+    .lab-page {
+      max-width: 78rem;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    .lab-kicker {
+      margin: 0;
+      color: var(--cds-text-secondary);
+      font-size: 0.75rem;
+      letter-spacing: 0.32px;
+      line-height: 1.333;
+    }
+
+    h1 {
+      margin: 0.25rem 0 0.75rem;
+      font-size: 2rem;
+      font-weight: 400;
+      line-height: 1.25;
+      color: var(--cds-text-primary);
+    }
+
+    .lab-lede {
+      max-width: 46rem;
+      margin: 0 0 1rem;
+      color: var(--cds-text-primary);
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+
+    .lab-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin: 0 0 2rem;
+    }
+
+    h2 {
+      margin: 0 0 1rem;
+      font-size: 1.25rem;
+      font-weight: 400;
+      line-height: 1.4;
+    }
+
+    .lab-scale {
+      display: grid;
+      grid-template-columns:
+        minmax(5.5rem, 10fr)
+        minmax(8rem, 25fr)
+        minmax(4.75rem, 5fr)
+        minmax(8rem, 25fr)
+        minmax(6rem, 10fr)
+        minmax(7rem, 15fr);
+      gap: 0.25rem;
+      margin: 0 0 2.5rem;
+    }
+
+    .lab-scale__bar {
+      display: block;
+      height: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .lab-scale__seg--cli .lab-scale__bar {
+      background: var(--cds-tag-color-blue);
+    }
+
+    .lab-scale__seg--terraform .lab-scale__bar {
+      background: var(--cds-tag-color-purple);
+    }
+
+    .lab-scale__seg--ansible .lab-scale__bar {
+      background: var(--cds-tag-color-teal);
+    }
+
+    .lab-scale__name,
+    .lab-scale__mins {
+      display: block;
+    }
+
+    .lab-scale__name {
+      color: var(--cds-text-primary);
+      font-size: 0.75rem;
+      letter-spacing: 0.32px;
+      line-height: 1.333;
+    }
+
+    .lab-scale__mins {
+      color: var(--cds-text-secondary);
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.75rem;
+      line-height: 1.333;
+    }
+
+    .lab-steps {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .lab-steps.cds--progress--vertical .lab-step {
+      display: grid;
+      inline-size: 100%;
+      min-inline-size: 0;
+      min-block-size: 0;
+    }
+
+    .lab-step {
+      display: grid;
+      grid-template-columns: 6.5rem 2rem minmax(0, 1fr);
+      column-gap: 1rem;
+    }
+
+    .lab-step__time {
+      padding-top: 1rem;
+      text-align: end;
+    }
+
+    .lab-step__range,
+    .lab-step__length {
+      display: block;
+      font-family: "IBM Plex Mono", monospace;
+    }
+
+    .lab-step__range {
+      color: var(--cds-text-primary);
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+
+    .lab-step__length {
+      color: var(--cds-text-secondary);
+      font-size: 0.75rem;
+    }
+
+    .lab-step__rail {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      padding-top: 1.125rem;
+    }
+
+    .lab-step__rail::before {
+      content: "";
+      position: absolute;
+      top: 2.625rem;
+      bottom: -0.25rem;
+      left: 50%;
+      width: 1px;
+      background: var(--cds-border-subtle-01);
+    }
+
+    .lab-step:last-child .lab-step__rail::before {
+      display: none;
+    }
+
+    .lab-step__index {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      place-items: center;
+      width: 1.5rem;
+      height: 1.5rem;
+      border-radius: 50%;
+      background: var(--cds-background-brand);
+      color: var(--cds-text-on-color);
+      font-size: 0.75rem;
+      font-weight: 600;
+      line-height: 1;
+    }
+
+    .lab-step__card {
+      margin-bottom: 1rem;
+    }
+
+    .lab-step__heading {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .lab-step__icons {
+      display: flex;
+      gap: 0.25rem;
+      color: var(--cds-icon-primary);
+      margin-top: 0.125rem;
+    }
+
+    .lab-icon {
+      width: 1.25rem;
+      height: 1.25rem;
+      fill: currentColor;
+    }
+
+    .lab-step h3 {
+      margin: 0 0 0.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+      line-height: 1.375;
+    }
+
+    .lab-step p {
+      margin: 0.75rem 0 0;
+      font-size: 0.875rem;
+      line-height: 1.5;
+      letter-spacing: 0.16px;
+    }
+
+    code {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.8125rem;
+      background: var(--cds-layer-01);
+      padding: 0 0.25rem;
+    }
+
+    .lab-after {
+      margin-top: 0.5rem;
+      padding: 1rem;
+      background: var(--cds-layer-01);
+      color: var(--cds-text-secondary);
+      font-size: 0.875rem;
+    }
+
+    @media (max-width: 42rem) {
+      .lab-scale {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .lab-step {
+        grid-template-columns: 2rem minmax(0, 1fr);
+      }
+
+      .lab-step__time {
+        grid-column: 2;
+        padding-top: 0;
+        text-align: start;
+        margin-bottom: 0.25rem;
+      }
+
+      .lab-step__rail {
+        grid-row: 1 / span 2;
+        padding-top: 0.25rem;
+      }
+    }
+  </style>
+</head>
+<body class="cds--white">
+  <svg xmlns="http://www.w3.org/2000/svg" hidden>
+    <symbol id="icon-terminal" viewBox="0 0 32 32"><path d="M26,4H6A2,2,0,0,0,4,6V26a2,2,0,0,0,2,2H26a2,2,0,0,0,2-2V6A2,2,0,0,0,26,4Zm0,2v4H6V6ZM6,26V12H26V26Z" transform="translate(0 0.01)"/><polygon points="10.76 16.18 13.58 19.01 10.76 21.84 12.17 23.25 16.41 19.01 12.17 14.77 10.76 16.18"/></symbol>
+    <symbol id="icon-catalog" viewBox="0 0 32 32"><path d="M26,2H8A2,2,0,0,0,6,4V8H4v2H6v5H4v2H6v5H4v2H6v4a2,2,0,0,0,2,2H26a2,2,0,0,0,2-2V4A2,2,0,0,0,26,2Zm0,26H8V24h2V22H8V17h2V15H8V10h2V8H8V4H26Z" transform="translate(0 0)"/><rect x="14" y="8" width="8" height="2"/><rect x="14" y="15" width="8" height="2"/><rect x="14" y="22" width="8" height="2"/></symbol>
+    <symbol id="icon-cloud" viewBox="0 0 32 32"><path d="M16,7h0a7.66,7.66,0,0,1,1.51.15,8,8,0,0,1,6.35,6.34l.26,1.35,1.35.24a5.5,5.5,0,0,1-1,10.92H7.5a5.5,5.5,0,0,1-1-10.92l1.34-.24.26-1.35A8,8,0,0,1,16,7m0-2a10,10,0,0,0-9.83,8.12A7.5,7.5,0,0,0,7.49,28h17a7.5,7.5,0,0,0,1.32-14.88,10,10,0,0,0-7.94-7.94A10.27,10.27,0,0,0,16,5Z" transform="translate(0)"/></symbol>
+    <symbol id="icon-network" viewBox="0 0 32 32"><path d="M30,30H22V22h8Zm-6-2h4V24H24Z"/><path d="M20,27H8A6,6,0,0,1,8,15h2v2H8a4,4,0,0,0,0,8H20Z"/><path d="M20,20H12V12h8Zm-6-2h4V14H14Z"/><path d="M24,17H22V15h2a4,4,0,0,0,0-8H12V5H24a6,6,0,0,1,0,12Z"/><path d="M10,10H2V2h8ZM4,8H8V4H4Z"/></symbol>
+    <symbol id="icon-credentials" viewBox="0 0 32 32"><path d="M16,22a4,4,0,1,0-4-4A4,4,0,0,0,16,22Zm0-6a2,2,0,1,1-2,2A2,2,0,0,1,16,16Z"/><rect x="14" y="6" width="4" height="2"/><path d="M24,2H8A2.002,2.002,0,0,0,6,4V28a2.0023,2.0023,0,0,0,2,2H24a2.0027,2.0027,0,0,0,2-2V4A2.0023,2.0023,0,0,0,24,2ZM20,28H12V26a1,1,0,0,1,1-1h6a1,1,0,0,1,1,1Zm2,0V26a3,3,0,0,0-3-3H13a3,3,0,0,0-3,3v2H8V4H24V28Z"/></symbol>
+    <symbol id="icon-server" viewBox="0 0 32 32"><circle cx="9" cy="6" r="1"/> <path d="M26,10H6A2.0021,2.0021,0,0,1,4,8V4A2.0021,2.0021,0,0,1,6,2H26a2.0021,2.0021,0,0,1,2,2V8A2.0021,2.0021,0,0,1,26,10ZM6,4V8H26V4Z" transform="translate(0 0)"/> <circle cx="9" cy="16" r="1"/> <path d="M26,20H6a2.0021,2.0021,0,0,1-2-2V14a2.0021,2.0021,0,0,1,2-2H26a2.0021,2.0021,0,0,1,2,2v4A2.0021,2.0021,0,0,1,26,20ZM6,14v4H26V14Z" transform="translate(0 0)"/> <circle cx="9" cy="26" r="1"/> <path d="M26,30H6a2.0021,2.0021,0,0,1-2-2V24a2.0021,2.0021,0,0,1,2-2H26a2.0021,2.0021,0,0,1,2,2v4A2.0021,2.0021,0,0,1,26,30ZM6,24v4H26V24Z" transform="translate(0 0)"/></symbol>
+    <symbol id="icon-volume" viewBox="0 0 32 32"><path d="M30,20h-4v2h4v2h-3c-1.1046,0-2,.8954-2,2v2c0,1.1046,.8954,2,2,2h5v-8c0-1.103-.8975-2-2-2Zm0,8h-3v-2h3v2Z"/> <path d="M24,22v-2h-3v-2h-2v2h-2v2h2v6c0,1.1025,.8975,2,2,2h3v-2h-3v-6h3Z"/> <path d="M14,20h-4v2h4v2h-3c-1.1046,0-2,.8954-2,2v2c0,1.1046,.8954,2,2,2h5v-8c0-1.103-.8975-2-2-2Zm0,8h-3v-2h3v2Z"/> <path d="M5,16.0005v4H2c-1.1025,0-2,.897-2,2v5.9995c0,1.1025,.8975,2,2,2H7v-13.9995h-2Zm-3,5.9995h3v6H2v-6Z"/> <path d="M4,14V5h7.5857l4,4h12.4143v8h2V9c-.0013-1.1041-.8959-1.9987-2-2h-11.5857l-3.4143-3.4141c-.3742-.3764-.8835-.5873-1.4143-.5859H4c-1.1041,.0013-1.9987,.8959-2,2V14h2Z"/></symbol>
+    <symbol id="icon-checkmark" viewBox="0 0 16 16"><rect id="_Transparent_Rectangle_" class="st0" width="16" height="16"/> <path d="M8,1C4.1,1,1,4.1,1,8c0,3.9,3.1,7,7,7s7-3.1,7-7C15,4.1,11.9,1,8,1z M7,11L4.3,8.3l0.9-0.8L7,9.3l4-3.9l0.9,0.8L7,11z"/> <path id="inner-path" class="st1" d="M7,11L4.3,8.3l0.9-0.8L7,9.3l4-3.9l0.9,0.8L7,11z"/></symbol>
+    <symbol id="icon-code" viewBox="0 0 32 32"><polygon points="31 16 24 23 22.59 21.59 28.17 16 22.59 10.41 24 9 31 16"/><polygon points="1 16 8 9 9.41 10.41 3.83 16 9.41 21.59 8 23 1 16"/><rect x="5.91" y="15" width="20.17" height="2" transform="translate(-3.6 27.31) rotate(-75)"/></symbol>
+    <symbol id="icon-time" viewBox="0 0 20 20"><path d="M10,19c-5,0-9-4-9-9s4-9,9-9s9,4,9,9S15,19,10,19z M10,2.3c-4.3,0-7.7,3.5-7.7,7.7s3.5,7.7,7.7,7.7s7.7-3.5,7.7-7.7 S14.3,2.3,10,2.3z"/> <polygon points="13,13.9 9.4,10.3 9.4,4 10.6,4 10.6,9.7 13.9,13 "/> <rect id="_Transparent_Rectangle_" class="st0" width="20" height="20"/></symbol>
+    <symbol id="icon-connect" viewBox="0 0 32 32"><path d="M23,16a7,7,0,0,0-4.18,1.39L14.6,13.17A6.86,6.86,0,0,0,16,9a7,7,0,1,0-2.81,5.59l4.21,4.22A7,7,0,1,0,23,16ZM4,9a5,5,0,1,1,5,5A5,5,0,0,1,4,9Z" transform="translate(0 0.01)"/></symbol>
+  </svg>
+
+  <main class="lab-page">
+    <p class="lab-kicker">90-minute lab</p>
+    <h1>Power Virtual Server session</h1>
+    <p class="lab-lede">Each student SSHes to a VPC virtual server that already has the IBM Cloud CLI, the PowerVS plugin, Terraform, Ansible, and that account’s API key. From there they create a PowerVS workspace, an AIX server, a transit gateway, and a data volume, then check connectivity.</p>
+    <div class="lab-tags">
+      <span class="cds--tag cds--tag--blue">IBM Cloud CLI</span>
+      <span class="cds--tag cds--tag--purple">Terraform</span>
+      <span class="cds--tag cds--tag--teal">Ansible</span>
+      <span class="cds--tag cds--tag--gray">AIX</span>
+    </div>
+
+    <section aria-labelledby="scale-heading">
+      <h2 id="scale-heading">How the 90 minutes split</h2>
+      <div class="lab-scale">
+        <div class="lab-scale__seg lab-scale__seg--cli">
+          <span class="lab-scale__bar"></span>
+          <span class="lab-scale__name">Catalog</span>
+          <span class="lab-scale__mins">10 min</span>
+        </div>
+        <div class="lab-scale__seg lab-scale__seg--terraform">
+          <span class="lab-scale__bar"></span>
+          <span class="lab-scale__name">Workspace and gateway</span>
+          <span class="lab-scale__mins">25 min</span>
+        </div>
+        <div class="lab-scale__seg lab-scale__seg--cli">
+          <span class="lab-scale__bar"></span>
+          <span class="lab-scale__name">SSH key</span>
+          <span class="lab-scale__mins">5 min</span>
+        </div>
+        <div class="lab-scale__seg lab-scale__seg--terraform">
+          <span class="lab-scale__bar"></span>
+          <span class="lab-scale__name">AIX server</span>
+          <span class="lab-scale__mins">25 min</span>
+        </div>
+        <div class="lab-scale__seg lab-scale__seg--terraform">
+          <span class="lab-scale__bar"></span>
+          <span class="lab-scale__name">Data volume</span>
+          <span class="lab-scale__mins">10 min</span>
+        </div>
+        <div class="lab-scale__seg lab-scale__seg--ansible">
+          <span class="lab-scale__bar"></span>
+          <span class="lab-scale__name">Connectivity</span>
+          <span class="lab-scale__mins">15 min</span>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="order-heading">
+      <h2 id="order-heading">Session order</h2>
+      <ol class="lab-steps cds--progress cds--progress--vertical">
+        <li class="lab-step cds--progress-step cds--progress-step--current">
+          <div class="lab-step__time">
+            <span class="lab-step__range">0–10</span>
+            <span class="lab-step__length">10 min</span>
+          </div>
+          <div class="lab-step__rail" aria-hidden="true"><span class="lab-step__index">1</span></div>
+          <article class="cds--tile lab-step__card">
+            <div class="lab-step__heading">
+              <div class="lab-step__icons" aria-hidden="true">
+                <svg class="lab-icon"><use href="#icon-terminal"></use></svg>
+                <svg class="lab-icon"><use href="#icon-catalog"></use></svg>
+              </div>
+              <div>
+                <h3>Discover AIX image versions</h3>
+                <div class="lab-tags">
+                  <span class="cds--tag cds--tag--blue cds--tag--sm">IBM Cloud CLI</span>
+                </div>
+              </div>
+            </div>
+            <p>SSH to the jump host. Run <code>ibmcloud pi datacenter list</code> and <code>ibmcloud pi image list-catalog</code>. Copy an AIX image name into <code>aix_image_name</code> and generate a local SSH keypair.</p>
+          </article>
+        </li>
+
+        <li class="lab-step cds--progress-step cds--progress-step--incomplete">
+          <div class="lab-step__time">
+            <span class="lab-step__range">10–35</span>
+            <span class="lab-step__length">25 min</span>
+          </div>
+          <div class="lab-step__rail" aria-hidden="true"><span class="lab-step__index">2</span></div>
+          <article class="cds--tile lab-step__card">
+            <div class="lab-step__heading">
+              <div class="lab-step__icons" aria-hidden="true">
+                <svg class="lab-icon"><use href="#icon-cloud"></use></svg>
+                <svg class="lab-icon"><use href="#icon-network"></use></svg>
+              </div>
+              <div>
+                <h3>Create the workspace and transit gateway</h3>
+                <div class="lab-tags">
+                  <span class="cds--tag cds--tag--purple cds--tag--sm">Terraform</span>
+                </div>
+              </div>
+            </div>
+            <p>First <code>terraform plan</code> and <code>apply</code>, with <code>create_instance = false</code>. This creates the PowerVS workspace, private subnet, transit gateway, both connections, and the VPC route. Read <code>workspace.tf</code> and <code>gateway.tf</code> while the workspace comes up.</p>
+          </article>
+        </li>
+
+        <li class="lab-step cds--progress-step cds--progress-step--incomplete">
+          <div class="lab-step__time">
+            <span class="lab-step__range">35–40</span>
+            <span class="lab-step__length">5 min</span>
+          </div>
+          <div class="lab-step__rail" aria-hidden="true"><span class="lab-step__index">3</span></div>
+          <article class="cds--tile lab-step__card">
+            <div class="lab-step__heading">
+              <div class="lab-step__icons" aria-hidden="true">
+                <svg class="lab-icon"><use href="#icon-credentials"></use></svg>
+              </div>
+              <div>
+                <h3>Create the PowerVS SSH key</h3>
+                <div class="lab-tags">
+                  <span class="cds--tag cds--tag--blue cds--tag--sm">IBM Cloud CLI</span>
+                </div>
+              </div>
+            </div>
+            <p><code>ibmcloud pi workspace target</code> the new workspace, then <code>ibmcloud pi ssh-key create</code>. Set <code>ssh_key_name</code> and <code>create_instance = true</code>.</p>
+          </article>
+        </li>
+
+        <li class="lab-step cds--progress-step cds--progress-step--incomplete">
+          <div class="lab-step__time">
+            <span class="lab-step__range">40–65</span>
+            <span class="lab-step__length">25 min</span>
+          </div>
+          <div class="lab-step__rail" aria-hidden="true"><span class="lab-step__index">4</span></div>
+          <article class="cds--tile lab-step__card">
+            <div class="lab-step__heading">
+              <div class="lab-step__icons" aria-hidden="true">
+                <svg class="lab-icon"><use href="#icon-server"></use></svg>
+              </div>
+              <div>
+                <h3>Create the AIX virtual server</h3>
+                <div class="lab-tags">
+                  <span class="cds--tag cds--tag--purple cds--tag--sm">Terraform</span>
+                </div>
+              </div>
+            </div>
+            <p>Second <code>plan</code> and <code>apply</code>. Read <code>instance.tf</code> while the AIX server provisions.</p>
+          </article>
+        </li>
+
+        <li class="lab-step cds--progress-step cds--progress-step--incomplete">
+          <div class="lab-step__time">
+            <span class="lab-step__range">65–75</span>
+            <span class="lab-step__length">10 min</span>
+          </div>
+          <div class="lab-step__rail" aria-hidden="true"><span class="lab-step__index">5</span></div>
+          <article class="cds--tile lab-step__card">
+            <div class="lab-step__heading">
+              <div class="lab-step__icons" aria-hidden="true">
+                <svg class="lab-icon"><use href="#icon-volume"></use></svg>
+              </div>
+              <div>
+                <h3>Attach a data volume</h3>
+                <div class="lab-tags">
+                  <span class="cds--tag cds--tag--purple cds--tag--sm">Terraform</span>
+                  <span class="cds--tag cds--tag--blue cds--tag--sm">IBM Cloud CLI</span>
+                </div>
+              </div>
+            </div>
+            <p>Set <code>attach_data_volume = true</code>. Third <code>plan</code> and <code>apply</code>. The plan adds the volume and the attachment and leaves the AIX server in place. Confirm with <code>ibmcloud pi volume list</code>.</p>
+          </article>
+        </li>
+
+        <li class="lab-step cds--progress-step cds--progress-step--incomplete">
+          <div class="lab-step__time">
+            <span class="lab-step__range">75–90</span>
+            <span class="lab-step__length">15 min</span>
+          </div>
+          <div class="lab-step__rail" aria-hidden="true"><span class="lab-step__index">6</span></div>
+          <article class="cds--tile lab-step__card">
+            <div class="lab-step__heading">
+              <div class="lab-step__icons" aria-hidden="true">
+                <svg class="lab-icon"><use href="#icon-code"></use></svg>
+                <svg class="lab-icon"><use href="#icon-checkmark"></use></svg>
+              </div>
+              <div>
+                <h3>Check connectivity from the jump host</h3>
+                <div class="lab-tags">
+                  <span class="cds--tag cds--tag--teal cds--tag--sm">Ansible</span>
+                </div>
+              </div>
+            </div>
+            <p>Run the playbook over SSH as <code>root</code>. It retries until port 22 answers, then runs <code>oslevel -s</code>, pings the jump host’s private IP, and runs <code>lspv</code> so the new volume is visible.</p>
+          </article>
+        </li>
+      </ol>
+      <p class="lab-after">Destroy stays after class. PowerVS teardown is too slow to spend the session on.</p>
+    </section>
+  </main>
+</body>
+</html>
