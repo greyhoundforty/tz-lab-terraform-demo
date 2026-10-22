@@ -10,6 +10,52 @@ write_files:
     permissions: "0644"
     content: |
       export IBMCLOUD_HOME=/opt/ibmcloud
+  - path: /opt/lab/guacamole/compose.yaml
+    permissions: "0644"
+    content: |
+      services:
+        guacd:
+          image: guacamole/guacd:1.6.0
+          restart: unless-stopped
+          extra_hosts:
+            - "host.docker.internal:host-gateway"
+        guacamole:
+          image: guacamole/guacamole:1.6.0
+          restart: unless-stopped
+          depends_on:
+            - guacd
+          ports:
+            - "8080:8080"
+          environment:
+            GUACD_HOSTNAME: guacd
+          volumes:
+            - /opt/lab/guacamole/user-mapping.xml:/etc/guacamole/user-mapping.xml:ro
+  - path: /usr/local/sbin/powervs-route.sh
+    permissions: "0755"
+    content: |
+      #!/bin/bash
+      set -euo pipefail
+      # This server often has no default route. The VPC delegate route only
+      # sees packets sent to the subnet gateway, so the PowerVS CIDR must
+      # point at that gateway.
+      addr=$(ip -4 -o addr show scope global | awk '$2 !~ /^(docker|br-|veth|cni)/ {print $4; exit}')
+      gw=$(python3 -c 'import ipaddress,sys; print(next(ipaddress.ip_interface(sys.argv[1]).network.hosts()))' "$addr")
+      ip route replace 192.168.100.0/24 via "$gw"
+  - path: /etc/systemd/system/powervs-route.service
+    permissions: "0644"
+    content: |
+      [Unit]
+      Description=Route the PowerVS CIDR through the VPC subnet gateway
+      After=network-online.target
+      Wants=network-online.target
+
+      [Service]
+      Type=oneshot
+      ExecStart=/usr/local/sbin/powervs-route.sh
+      RemainAfterExit=yes
+
+      [Install]
+      WantedBy=multi-user.target
   - path: /usr/local/sbin/install-lab-tools.sh
     permissions: "0755"
     content: |
@@ -33,18 +79,88 @@ write_files:
       # Shared CLI home. Plugin install runs as root and writes config mode 0600.
       # Group ubuntu is the SSH user's primary group, so this session can read it.
       install -d -o root -g ubuntu -m 2775 /opt/ibmcloud
+      umask 002
       ibmcloud config --check-version=false
       ibmcloud plugin install power-iaas -f
-      chgrp -R ubuntu /opt/ibmcloud
-      chmod -R g+rwX /opt/ibmcloud
-      find /opt/ibmcloud -type d -exec chmod 2775 {} +
+      umask 022
+
+      # systemd links this into /etc/profile.d and emits OSC 3008 sequences
+      # around the prompt. Guacamole's terminal prints those sequences.
+      if [ -e /etc/profile.d/80-systemd-osc-context.sh ]; then
+        rm -f /etc/profile.d/80-systemd-osc-context.sh
+      fi
+      install -d -m 0755 /etc/tmpfiles.d
+      ln -sf /dev/null /etc/tmpfiles.d/20-systemd-osc-context.conf
+
+      install -d -m 0755 /etc/apt/keyrings
+      curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+      chmod a+r /etc/apt/keyrings/docker.asc
+      . /etc/os-release
+      echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $VERSION_CODENAME stable" > /etc/apt/sources.list.d/docker.list
+      apt-get update
+      apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+      systemctl enable --now docker
+      usermod -aG docker ubuntu
+
+      install -d -m 0755 /opt/lab/guacamole
+      if [ ! -f /opt/lab/guacamole/lab-server ]; then
+        ssh-keygen -t rsa -b 4096 -f /opt/lab/guacamole/lab-server -N ""
+      fi
+      install -d -o ubuntu -g ubuntu -m 0700 /home/ubuntu/.ssh
+      touch /home/ubuntu/.ssh/authorized_keys
+      grep -qxF "$(cat /opt/lab/guacamole/lab-server.pub)" /home/ubuntu/.ssh/authorized_keys || cat /opt/lab/guacamole/lab-server.pub >> /home/ubuntu/.ssh/authorized_keys
+      chown ubuntu:ubuntu /home/ubuntu/.ssh/authorized_keys
+      chmod 0600 /home/ubuntu/.ssh/authorized_keys
+      chmod 0600 /opt/lab/guacamole/lab-server
+
+      cat > /opt/lab/guacamole/user-mapping.xml <<'END'
+      <user-mapping>
+          <authorize username="student" password="pvs-lab">
+              <connection name="Lab server">
+                  <protocol>ssh</protocol>
+                  <param name="hostname">host.docker.internal</param>
+                  <param name="port">22</param>
+                  <param name="username">ubuntu</param>
+                  <param name="private-key">
+      END
+      cat /opt/lab/guacamole/lab-server >> /opt/lab/guacamole/user-mapping.xml
+      cat >> /opt/lab/guacamole/user-mapping.xml <<'END'
+                  </param>
+              </connection>
+          </authorize>
+      </user-mapping>
+      END
+      # The guacamole/guacamole image runs as uid 1001. A root-owned 0640
+      # file is unreadable inside the container, and Guacamole then rejects
+      # every login because it cannot load user-mapping.xml.
+      chown 1001:1001 /opt/lab/guacamole/user-mapping.xml
+      chmod 0600 /opt/lab/guacamole/user-mapping.xml
+      docker compose -f /opt/lab/guacamole/compose.yaml up -d
 
       {
         echo "terraform: $(/usr/local/bin/terraform version)"
         echo "ansible: $(ansible --version | head -n 1)"
         echo "ibmcloud: $(ibmcloud version)"
+        echo "docker: $(docker version --format '{{.Server.Version}}')"
         ibmcloud plugin list
+        docker compose -f /opt/lab/guacamole/compose.yaml ps
       } > /var/log/lab-tools-install.log 2>&1
+
+      # plugin list above rewrites config.json as root mode 0600.
+      # Group ubuntu is the SSH user's primary group.
+      chgrp -R ubuntu /opt/ibmcloud
+      chmod -R g+rwX /opt/ibmcloud
+      find /opt/ibmcloud -type d -exec chmod 2775 {} +
+
+      apt-get install -y git python3
+      systemctl enable --now powervs-route.service
+      install -d -o ubuntu -g ubuntu -m 0755 /home/ubuntu
+      if [ ! -d /home/ubuntu/tz-lab-terraform-demo/.git ]; then
+        sudo -u ubuntu -H git clone https://github.com/greyhoundforty/tz-lab-terraform-demo.git /home/ubuntu/tz-lab-terraform-demo
+      else
+        sudo -u ubuntu -H git -C /home/ubuntu/tz-lab-terraform-demo pull --ff-only
+      fi
+      chown -R ubuntu:ubuntu /home/ubuntu/tz-lab-terraform-demo
 
 runcmd:
   - /usr/local/sbin/install-lab-tools.sh

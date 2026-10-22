@@ -47,3 +47,24 @@ resource "ibm_pi_instance" "aix" {
     network_id = ibm_pi_network.private.network_id
   }
 }
+
+# Runs on the VPC server where Terraform is executed. The delegate route in
+# the VPC table only forwards packets that arrive at the subnet gateway.
+resource "null_resource" "powervs_route" {
+  count = local.create_aix ? 1 : 0
+
+  triggers = {
+    aix_ip       = ibm_pi_instance.aix[0].pi_network[0].ip_address
+    powervs_cidr = var.powervs_cidr
+  }
+
+  provisioner "local-exec" {
+    interpreter = ["/bin/bash", "-c"]
+    command     = <<-EOT
+      set -eu
+      addr=$(ip -4 -o addr show scope global | awk '$2 !~ /^(docker|br-|veth|cni)/ {print $4; exit}')
+      gw=$(python3 -c 'import ipaddress,sys; print(next(ipaddress.ip_interface(sys.argv[1]).network.hosts()))' "$addr")
+      sudo -n ip route replace ${var.powervs_cidr} via "$gw"
+    EOT
+  }
+}

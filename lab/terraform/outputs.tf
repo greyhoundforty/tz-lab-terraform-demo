@@ -27,3 +27,8 @@ output "aix_instance_id" {
   description = "AIX virtual server ID, after aix_image_name is set."
   value       = try(ibm_pi_instance.aix[0].id, null)
 }
+
+output "aix_ip_address" {
+  description = "Private IP of the AIX server on the PowerVS network."
+  value       = try(ibm_pi_instance.aix[0].pi_network[0].ip_address, null)
+}

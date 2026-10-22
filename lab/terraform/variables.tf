@@ -73,7 +73,7 @@ variable "pi_processors" {
 }
 
 variable "pi_sys_type" {
-  description = "PowerVS system type for the AIX server."
+  description = "PowerVS system type for the AIX server. Power11 uses s122. The Power9 type s922 is deprecated."
   type        = string
-  default     = "s922"
+  default     = "s122"
 }

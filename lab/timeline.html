@@ -59,8 +59,8 @@
     .lab-scale {
       display: grid;
       grid-template-columns:
-        minmax(7rem, 15fr)
-        minmax(4.5rem, 5fr)
+        minmax(6rem, 10fr)
+        minmax(6rem, 10fr)
         minmax(10rem, 30fr)
         minmax(8rem, 25fr)
         minmax(7rem, 15fr);
@@ -235,6 +235,123 @@
       line-height: 1.333;
     }
 
+    .lab-terminal {
+      margin-top: 0.75rem;
+      overflow: hidden;
+      border: 1px solid #393939;
+      border-radius: 0.25rem;
+      background: #161616;
+    }
+
+    .lab-terminal__bar {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.4rem 0.75rem;
+      background: #393939;
+      color: #c6c6c6;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.6875rem;
+      line-height: 1;
+    }
+
+    .lab-terminal__dot {
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 50%;
+      background: #6f6f6f;
+    }
+
+    .lab-terminal__dot:nth-child(1) {
+      background: #fa4d56;
+    }
+
+    .lab-terminal__dot:nth-child(2) {
+      background: #f1c21b;
+    }
+
+    .lab-terminal__dot:nth-child(3) {
+      background: #42be65;
+    }
+
+    .lab-terminal__title {
+      margin-left: 0.375rem;
+    }
+
+    .lab-terminal pre {
+      margin: 0;
+      padding: 0.85rem 1rem 1rem;
+      background: #161616;
+      color: #f4f4f4;
+    }
+
+    .lab-terminal pre code {
+      color: #f4f4f4;
+      font-size: 0.8125rem;
+      line-height: 1.6;
+    }
+
+    .lab-terminal__comment {
+      color: #8d8d8d;
+    }
+
+    .lab-tf {
+      margin: 1.25rem 0 0;
+    }
+
+    .lab-tf__row {
+      display: flex;
+      align-items: stretch;
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+    }
+
+    .lab-tf__step {
+      flex: 1;
+      min-width: 0;
+      padding: 0.75rem;
+      background: var(--cds-layer-01);
+      border-top: 3px solid var(--cds-tag-color-purple);
+    }
+
+    .lab-tf__cmd,
+    .lab-tf__what {
+      display: block;
+    }
+
+    .lab-tf__cmd {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--cds-text-primary);
+    }
+
+    .lab-tf__what {
+      margin-top: 0.35rem;
+      color: var(--cds-text-secondary);
+      font-size: 0.8125rem;
+      line-height: 1.4;
+    }
+
+    .lab-tf__arrow {
+      flex: 0 0 auto;
+      align-self: center;
+      width: 1.25rem;
+      height: 1px;
+      background: var(--cds-border-strong-01);
+      position: relative;
+    }
+
+    .lab-tf__arrow::after {
+      content: "";
+      position: absolute;
+      right: -1px;
+      top: -3px;
+      border-width: 4px 0 4px 6px;
+      border-style: solid;
+      border-color: transparent transparent transparent var(--cds-border-strong-01);
+    }
+
     pre {
       margin: 0;
       padding: 0.75rem 1rem;
@@ -283,6 +400,25 @@
         grid-row: 1 / span 2;
         padding-top: 0.25rem;
       }
+
+      .lab-tf__row {
+        flex-direction: column;
+      }
+
+      .lab-tf__arrow {
+        width: 1px;
+        height: 1.25rem;
+        align-self: center;
+      }
+
+      .lab-tf__arrow::after {
+        right: auto;
+        left: -3px;
+        top: auto;
+        bottom: -1px;
+        border-width: 6px 4px 0 4px;
+        border-color: var(--cds-border-strong-01) transparent transparent transparent;
+      }
     }
   </style>
 </head>
@@ -304,7 +440,7 @@
   <main class="lab-page">
     <p class="lab-kicker">90-minute lab</p>
     <h1>Power Virtual Server session</h1>
-    <p class="lab-lede">The VPC and the Ubuntu server already exist. Each student starts in IBM Cloud Shell, then SSHes to that server. Terraform creates the PowerVS workspace, the PowerVS SSH key, the transit gateway, and the AIX server. It does not create a VPC.</p>
+    <p class="lab-lede">The VPC and the Ubuntu server already exist. Guacamole is already running on that server. Each student opens it in a browser and lands in a shell as <code>ubuntu</code>. From that shell they create the PowerVS SSH key and apply Terraform, which reads the existing VPC and creates the workspace, the PowerVS SSH key, the transit gateway, and the AIX server.</p>
     <div class="lab-tags">
       <span class="cds--tag cds--tag--blue">IBM Cloud CLI</span>
       <span class="cds--tag cds--tag--purple">Terraform</span>
@@ -317,13 +453,13 @@
       <div class="lab-scale">
         <div class="lab-scale__seg lab-scale__seg--cli">
           <span class="lab-scale__bar"></span>
-          <span class="lab-scale__name">Cloud Shell</span>
-          <span class="lab-scale__mins">15 min</span>
+          <span class="lab-scale__name">Browser session</span>
+          <span class="lab-scale__mins">10 min</span>
         </div>
         <div class="lab-scale__seg lab-scale__seg--cli">
           <span class="lab-scale__bar"></span>
-          <span class="lab-scale__name">SSH</span>
-          <span class="lab-scale__mins">5 min</span>
+          <span class="lab-scale__name">API key and SSH key</span>
+          <span class="lab-scale__mins">10 min</span>
         </div>
         <div class="lab-scale__seg lab-scale__seg--terraform">
           <span class="lab-scale__bar"></span>
@@ -348,62 +484,78 @@
       <ol class="lab-steps cds--progress cds--progress--vertical">
         <li class="lab-step cds--progress-step cds--progress-step--current">
           <div class="lab-step__time">
-            <span class="lab-step__range">0–15</span>
-            <span class="lab-step__length">15 min</span>
+            <span class="lab-step__range">0–10</span>
+            <span class="lab-step__length">10 min</span>
           </div>
           <div class="lab-step__rail" aria-hidden="true"><span class="lab-step__index">1</span></div>
           <article class="cds--tile lab-step__card">
             <div class="lab-step__heading">
               <div class="lab-step__icons" aria-hidden="true">
                 <svg class="lab-icon"><use href="#icon-terminal"></use></svg>
-                <svg class="lab-icon"><use href="#icon-credentials"></use></svg>
+                <svg class="lab-icon"><use href="#icon-server"></use></svg>
               </div>
               <div>
-                <h3>Prepare Cloud Shell</h3>
+                <h3>Open the server in the browser</h3>
                 <div class="lab-tags">
-                  <span class="cds--tag cds--tag--blue cds--tag--sm">IBM Cloud CLI</span>
+                  <span class="cds--tag cds--tag--blue cds--tag--sm">Guacamole</span>
                 </div>
               </div>
             </div>
-            <p>Log in to the IBM Cloud portal and open Cloud Shell. Create an RSA key and an API key, install the PowerVS plugin, and read the existing VPC and virtual server.</p>
-            <p class="lab-label">Run</p>
-            <pre><code>ssh-keygen -t rsa -b 4096 -f ~/.ssh/pvs-lab -N ""
-ibmcloud iam api-key-create pvs-lab -d "PowerVS lab" --file ./pvs-lab-apikey.json
-ibmcloud plugin install power-iaas -f
-ibmcloud is vpcs
-ibmcloud is instances</code></pre>
+            <p>Log in to the IBM Cloud portal only to confirm the account. The shell is Guacamole, already running on the Ubuntu server. Open the lab URL, sign in as <code>student</code> with password <code>pvs-lab</code>, and choose the connection named <code>Lab server</code>.</p>
+            <p class="lab-label">Open</p>
+            <pre><code>http://&lt;floating-ip&gt;:8080/guacamole/</code></pre>
+            <div class="lab-terminal">
+              <div class="lab-terminal__bar" aria-hidden="true">
+                <span class="lab-terminal__dot"></span>
+                <span class="lab-terminal__dot"></span>
+                <span class="lab-terminal__dot"></span>
+                <span class="lab-terminal__title">ubuntu@demoguac</span>
+              </div>
+              <pre><code>whoami
+terraform version
+ibmcloud plugin list
+ls ~/tz-lab-terraform-demo/lab/terraform</code></pre>
+            </div>
             <p class="lab-label">Expect</p>
-            <p class="lab-result"><code>~/.ssh/pvs-lab.pub</code> starts with <code>ssh-rsa</code>. The API key file contains <code>apikey</code>. <code>power-iaas</code> is in <code>ibmcloud plugin list</code>. <code>ibmcloud is vpcs</code> shows the VPC name for <code>vpc_name</code>. <code>ibmcloud is instances</code> shows the Ubuntu server and its floating IP.</p>
+            <p class="lab-result">The prompt is <code>ubuntu</code>. Terraform, the IBM Cloud CLI, and <code>power-iaas</code> are already installed. The demo repo is already cloned.</p>
+            <p>In <code>nano</code> or <code>vi</code>, click <code>Ctrl</code> in the lower right of the Guacamole screen to send a control key. Click it again so it is unselected before Enter, and before the keystrokes that leave the editor. A selected <code>Ctrl</code> stays down for the next key.</p>
           </article>
         </li>
 
         <li class="lab-step cds--progress-step cds--progress-step--incomplete">
           <div class="lab-step__time">
-            <span class="lab-step__range">15–20</span>
-            <span class="lab-step__length">5 min</span>
+            <span class="lab-step__range">10–20</span>
+            <span class="lab-step__length">10 min</span>
           </div>
           <div class="lab-step__rail" aria-hidden="true"><span class="lab-step__index">2</span></div>
           <article class="cds--tile lab-step__card">
             <div class="lab-step__heading">
               <div class="lab-step__icons" aria-hidden="true">
-                <svg class="lab-icon"><use href="#icon-server"></use></svg>
+                <svg class="lab-icon"><use href="#icon-credentials"></use></svg>
               </div>
               <div>
-                <h3>SSH to the existing server</h3>
+                <h3>Create the API key and the PowerVS SSH key</h3>
                 <div class="lab-tags">
                   <span class="cds--tag cds--tag--blue cds--tag--sm">IBM Cloud CLI</span>
                 </div>
               </div>
             </div>
-            <p>The server already authorizes the Cloud Shell public key. Terraform, Ansible, the IBM Cloud CLI, the PowerVS plugin, and this repo are already installed.</p>
-            <p class="lab-label">Run</p>
-            <pre><code>scp -i ~/.ssh/pvs-lab ./pvs-lab-apikey.json ubuntu@&lt;floating-ip&gt;:
-ssh -i ~/.ssh/pvs-lab ubuntu@&lt;floating-ip&gt;
-terraform version
-ibmcloud plugin list
-ls lab/terraform</code></pre>
+            <p>In the portal, open Manage, then Access (IAM), then API keys, and create a key. Paste it into this shell. The RSA key created here is the PowerVS key Terraform will import. It is separate from the key Guacamole already uses to reach this server.</p>
+            <div class="lab-terminal">
+              <div class="lab-terminal__bar" aria-hidden="true">
+                <span class="lab-terminal__dot"></span>
+                <span class="lab-terminal__dot"></span>
+                <span class="lab-terminal__dot"></span>
+                <span class="lab-terminal__title">ubuntu@demoguac</span>
+              </div>
+              <pre><code>export IC_API_KEY="&lt;paste the API key&gt;"
+ssh-keygen -t rsa -b 4096 -f ~/.ssh/pvs-lab -N ""
+ibmcloud login --apikey "$IC_API_KEY" -r us-south
+ibmcloud is vpcs
+cat ~/.ssh/pvs-lab.pub</code></pre>
+            </div>
             <p class="lab-label">Expect</p>
-            <p class="lab-result">The login user is <code>ubuntu</code>. Terraform and <code>power-iaas</code> are present. <code>lab/terraform</code> is the stack to apply.</p>
+            <p class="lab-result">Login succeeds for the lab account. <code>ibmcloud is vpcs</code> prints the VPC name for <code>vpc_name</code>. The public key starts with <code>ssh-rsa</code>. Keep this shell open so <code>IC_API_KEY</code> stays set.</p>
           </article>
         </li>
 
@@ -426,18 +578,45 @@ ls lab/terraform</code></pre>
                 </div>
               </div>
             </div>
-            <p>First plan and apply. <code>aix_image_name</code> stays empty, so the AIX server stays out of this plan. Terraform reads the existing VPC and does not create one. Read <code>workspace.tf</code> and <code>gateway.tf</code> while the workspace comes up.</p>
-            <p class="lab-label">Run</p>
-            <pre><code>export IC_API_KEY="$(jq -r .apikey ~/pvs-lab-apikey.json)"
-cd lab/terraform
+            <p>First plan and apply, still in the Guacamole shell. <code>aix_image_name</code> stays empty, so the AIX server stays out of this plan. Terraform reads the existing VPC. Read <code>workspace.tf</code> and <code>gateway.tf</code> while the workspace comes up. If you edit <code>terraform.tfvars</code> in <code>nano</code> or <code>vi</code>, use the on-screen <code>Ctrl</code> button and turn it off before Enter and before leaving the editor.</p>
+            <div class="lab-terminal">
+              <div class="lab-terminal__bar" aria-hidden="true">
+                <span class="lab-terminal__dot"></span>
+                <span class="lab-terminal__dot"></span>
+                <span class="lab-terminal__dot"></span>
+                <span class="lab-terminal__title">ubuntu@demoguac</span>
+              </div>
+              <pre><code>cd ~/tz-lab-terraform-demo/lab/terraform
 cp terraform.tfvars.example terraform.tfvars
-# set vpc_name and ssh_public_key; leave aix_image_name empty
+<span class="lab-terminal__comment"># set vpc_name from ibmcloud is vpcs</span>
+<span class="lab-terminal__comment"># set ssh_public_key to the ssh-rsa line from cat ~/.ssh/pvs-lab.pub</span>
+<span class="lab-terminal__comment"># leave aix_image_name empty</span>
 
 terraform init
-terraform plan
-terraform apply</code></pre>
+terraform plan -out default.tfplan
+terraform apply default.tfplan</code></pre>
+            </div>
             <p class="lab-label">Expect</p>
             <p class="lab-result">The plan adds the PowerVS workspace, private network, PowerVS SSH key, transit gateway, both connections, and a delegate route on the existing VPC. Apply prints <code>workspace_crn</code>.</p>
+            <figure class="lab-tf">
+              <figcaption class="lab-label">What init, plan, and apply do</figcaption>
+              <div class="lab-tf__row">
+                <div class="lab-tf__step">
+                  <span class="lab-tf__cmd">init</span>
+                  <span class="lab-tf__what">Download the IBM provider and the modules for this directory.</span>
+                </div>
+                <span class="lab-tf__arrow" aria-hidden="true"></span>
+                <div class="lab-tf__step">
+                  <span class="lab-tf__cmd">plan -out</span>
+                  <span class="lab-tf__what">Read the existing VPC and save the workspace, key, and gateway it will add in <code>default.tfplan</code>.</span>
+                </div>
+                <span class="lab-tf__arrow" aria-hidden="true"></span>
+                <div class="lab-tf__step">
+                  <span class="lab-tf__cmd">apply</span>
+                  <span class="lab-tf__what">Create the resources saved in <code>default.tfplan</code> and record <code>workspace_crn</code>.</span>
+                </div>
+              </div>
+            </figure>
           </article>
         </li>
 
@@ -462,18 +641,27 @@ terraform apply</code></pre>
               </div>
             </div>
             <p>Target the new workspace, copy an AIX image name, and apply again. Read <code>instance.tf</code> while the server provisions.</p>
-            <p class="lab-label">Run</p>
-            <pre><code>ibmcloud login --apikey "$IC_API_KEY" -r us-south
-ibmcloud pi workspace target "&lt;workspace_crn&gt;"
+            <div class="lab-terminal">
+              <div class="lab-terminal__bar" aria-hidden="true">
+                <span class="lab-terminal__dot"></span>
+                <span class="lab-terminal__dot"></span>
+                <span class="lab-terminal__dot"></span>
+                <span class="lab-terminal__title">ubuntu@demoguac</span>
+              </div>
+              <pre><code>ibmcloud login --apikey "$IC_API_KEY" -r us-south
+<span class="lab-terminal__comment"># still in ~/tz-lab-terraform-demo/lab/terraform</span>
+ibmcloud pi workspace target $(terraform output --raw workspace_crn)
 ibmcloud pi image list-catalog
 
-# lab/terraform/terraform.tfvars
+<span class="lab-terminal__comment"># lab/terraform/terraform.tfvars</span>
 aix_image_name = "&lt;name from image list-catalog&gt;"
 
-terraform plan
-terraform apply</code></pre>
+terraform plan -out default.tfplan
+terraform apply default.tfplan
+terraform output -raw aix_ip_address</code></pre>
+            </div>
             <p class="lab-label">Expect</p>
-            <p class="lab-result">The catalog lists stock images. The plan adds the image copy and the AIX server. The workspace, SSH key, and transit gateway stay in place. <code>ibmcloud pi ssh-key list</code> shows the key Terraform imported.</p>
+            <p class="lab-result">The catalog lists stock images. The plan adds the image copy and the AIX server on system type <code>s122</code>. Apply adds a route on this server for the PowerVS CIDR through the subnet gateway, and prints <code>aix_ip_address</code>.</p>
           </article>
         </li>
 
@@ -495,13 +683,24 @@ terraform apply</code></pre>
                 </div>
               </div>
             </div>
-            <p>The PowerVS plugin is still targeted at the workspace from the previous step.</p>
-            <p class="lab-label">Run</p>
-            <pre><code>ibmcloud pi workspace context
+            <p>Stay in <code>~/tz-lab-terraform-demo/lab/terraform</code>. Ping the AIX address, then SSH in as <code>root</code> with the PowerVS key created on this server. The first connection asks you to trust the host key. Answer <code>yes</code>.</p>
+            <div class="lab-terminal">
+              <div class="lab-terminal__bar" aria-hidden="true">
+                <span class="lab-terminal__dot"></span>
+                <span class="lab-terminal__dot"></span>
+                <span class="lab-terminal__dot"></span>
+                <span class="lab-terminal__title">ubuntu@demoguac</span>
+              </div>
+              <pre><code>ibmcloud pi workspace context
 ibmcloud pi instance list
-ibmcloud pi ssh-key list</code></pre>
+ibmcloud pi ssh-key list
+
+aix_ip=$(terraform output -raw aix_ip_address)
+ping -c3 -q "$aix_ip"
+ssh -i ~/.ssh/pvs-lab root@"$aix_ip"</code></pre>
+            </div>
             <p class="lab-label">Expect</p>
-            <p class="lab-result">The context CRN matches <code>workspace_crn</code>. The instance list shows the AIX server. The SSH key list shows the key created from the Cloud Shell public key.</p>
+            <p class="lab-result">The context CRN matches <code>workspace_crn</code>. The instance list shows the AIX server. The SSH key list shows the key created in this shell. Ping reports 3 packets transmitted and 3 received. SSH prints <code>Welcome to AIX Version 7.3!</code> and the prompt is <code>root</code>.</p>
           </article>
         </li>
       </ol>
