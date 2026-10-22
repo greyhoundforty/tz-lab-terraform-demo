@@ -397,7 +397,8 @@ ibmcloud is instances</code></pre>
             </div>
             <p>The server already authorizes the Cloud Shell public key. Terraform, Ansible, the IBM Cloud CLI, the PowerVS plugin, and this repo are already installed.</p>
             <p class="lab-label">Run</p>
-            <pre><code>ssh -i ~/.ssh/pvs-lab ubuntu@&lt;floating-ip&gt;
+            <pre><code>scp -i ~/.ssh/pvs-lab ./pvs-lab-apikey.json ubuntu@&lt;floating-ip&gt;:
+ssh -i ~/.ssh/pvs-lab ubuntu@&lt;floating-ip&gt;
 terraform version
 ibmcloud plugin list
 ls lab/terraform</code></pre>

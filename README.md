@@ -27,6 +27,7 @@ ibmcloud is instances
 `ibmcloud is vpcs` is the VPC name for `vpc_name`. `ibmcloud is instances` is the Ubuntu server and its floating IP. SSH to that address with the key just created. The server already authorizes that public key.
 
 ```bash
+scp -i ~/.ssh/pvs-lab ./pvs-lab-apikey.json ubuntu@<floating-ip>:
 ssh -i ~/.ssh/pvs-lab ubuntu@<floating-ip>
 ```
 
