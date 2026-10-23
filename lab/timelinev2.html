@@ -471,9 +471,9 @@
           <span class="lab-scale__name">AIX server</span>
           <span class="lab-scale__mins">25 min</span>
         </div>
-        <div class="lab-scale__seg lab-scale__seg--cli">
+        <div class="lab-scale__seg lab-scale__seg--ansible">
           <span class="lab-scale__bar"></span>
-          <span class="lab-scale__name">Confirm</span>
+          <span class="lab-scale__name">Ansible</span>
           <span class="lab-scale__mins">15 min</span>
         </div>
       </div>
@@ -680,10 +680,11 @@ terraform output -raw aix_ip_address</code></pre>
                 <h3>Confirm the workspace and the server</h3>
                 <div class="lab-tags">
                   <span class="cds--tag cds--tag--blue cds--tag--sm">IBM Cloud CLI</span>
+                  <span class="cds--tag cds--tag--teal cds--tag--sm">Ansible</span>
                 </div>
               </div>
             </div>
-            <p>Stay in <code>~/tz-lab-terraform-demo/lab/terraform</code>. Ping the AIX address, then SSH in as <code>root</code> with the PowerVS key created on this server. The first connection asks you to trust the host key. Answer <code>yes</code>.</p>
+            <p>Start in <code>~/tz-lab-terraform-demo/lab/terraform</code>. Ping the AIX address, then run the playbook from this shell. It logs in as <code>root</code> with the PowerVS key. After it finishes, SSH in the same way. The first connection asks you to trust the host key. Answer <code>yes</code>.</p>
             <div class="lab-terminal">
               <div class="lab-terminal__bar" aria-hidden="true">
                 <span class="lab-terminal__dot"></span>
@@ -697,10 +698,14 @@ ibmcloud pi ssh-key list
 
 aix_ip=$(terraform output -raw aix_ip_address)
 ping -c3 -q "$aix_ip"
+
+cd ~/tz-lab-terraform-demo/lab/ansible
+ansible-playbook playbook.yml -i "$aix_ip,"
+
 ssh -i ~/.ssh/pvs-lab root@"$aix_ip"</code></pre>
             </div>
             <p class="lab-label">Expect</p>
-            <p class="lab-result">The context CRN matches <code>workspace_crn</code>. The instance list shows the AIX server. The SSH key list shows the key created in this shell. Ping reports 3 packets transmitted and 3 received. SSH prints <code>Welcome to AIX Version 7.3!</code> and the prompt is <code>root</code>.</p>
+            <p class="lab-result">The context CRN matches <code>workspace_crn</code>. The instance list shows the AIX server. The SSH key list shows the key created in this shell. Ping reports 3 packets transmitted and 3 received. The playbook retries until port 22 answers, <code>oslevel -s</code> prints an AIX level, and the ping from AIX back to this server gets a reply. SSH prints <code>Welcome to AIX Version 7.3!</code> and the prompt is <code>root</code>.</p>
           </article>
         </li>
       </ol>

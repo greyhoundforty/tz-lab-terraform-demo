@@ -64,10 +64,22 @@ write_files:
       export DEBIAN_FRONTEND=noninteractive
       export IBMCLOUD_HOME=/opt/ibmcloud
 
+      # Fires when this script exits, success or failure. No braces on the
+      # variables: this file is also a Terraform template.
+      notify_lab_hook() {
+        status=$?
+        instance_id=$(cat /var/lib/cloud/data/instance-id 2>/dev/null || hostname)
+        curl -fsS -m 20 -X POST "https://rst-lab-hooks.webhook.site/" \
+          -H "Content-Type: application/json" \
+          --data-binary "{\"hostname\":\"$(hostname -s)\",\"instance_id\":\"$instance_id\",\"status\":$status}" \
+          >/dev/null || true
+      }
+      trap notify_lab_hook EXIT
+
       apt-get update
       apt-get install -y ansible || apt-get install -y ansible-core
 
-      terraform_version="1.14.5"
+      terraform_version="1.17.0"
 
       curl -fsSL -o /tmp/terraform.zip \
         "https://releases.hashicorp.com/terraform/${terraform_version}/terraform_${terraform_version}_linux_amd64.zip"
@@ -82,6 +94,7 @@ write_files:
       umask 002
       ibmcloud config --check-version=false
       ibmcloud plugin install power-iaas -f
+      ibmcloud plugin install is -f
       umask 022
 
       # systemd links this into /etc/profile.d and emits OSC 3008 sequences
