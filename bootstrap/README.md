@@ -1,9 +1,18 @@
 # Bootstrap
 
-This directory does not create a VPC. The lab VPC and the Ubuntu server already exist.
+This directory creates the lab VPC and the Ubuntu server. Names end with a random suffix that stays in this Terraform state. A new state gets a new suffix, a new VPC, and a new route table, so a later lab does not add routes to a table a previous run already filled.
 
-`cloud-init.yaml.tftpl` is the image prep that puts Terraform, Ansible, the IBM Cloud CLI, the `power-iaas` plugin, and Docker on that server. It also starts Guacamole on port 8080. Students do not apply the image prep.
+`cloud-init.yaml.tftpl` is the image prep passed as the server's user data. It installs Terraform, Ansible, the IBM Cloud CLI, the `power-iaas` plugin, and Docker, and it starts Guacamole on port 8080.
 
-This directory's Terraform does not create those servers. Copy `terraform.tfvars.example` to `terraform.tfvars`, list the virtual server names in `student_instances`, and set `ssh_private_key_file` to a key that can SSH in as `ubuntu`. With `IC_API_KEY` set, `terraform apply` looks up each server's floating IP, generates a Guacamole password, installs it for the `student` user, and writes `student-access.csv`. Give each student the row for their server. The CSV is gitignored. A new server still boots with password `pvs-lab` until this apply runs.
+Copy `terraform.tfvars.example` to `terraform.tfvars` and set `ssh_public_key`. With `IC_API_KEY` set:
 
-The stack students apply is `lab/terraform/`. It reads the existing VPC and creates the PowerVS workspace, SSH key, transit gateway, and AIX server.
+```bash
+terraform init
+terraform apply
+```
+
+`vpc_name` in the output is the value for `vpc_name` in `lab/terraform/`. Guacamole is at `http://<floating_ip>:8080/guacamole/`.
+
+To set a per-server Guacamole password after cloud-init finishes, set `student_instances` to the instance name and set `ssh_private_key_file`, then apply again. That writes `student-access.csv`. The CSV is gitignored. Until that apply, the server login is `student` / `pvs-lab`.
+
+The stack students apply is `lab/terraform/`. It reads this VPC and creates the PowerVS workspace, SSH key, transit gateway, and AIX server.

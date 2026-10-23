@@ -66,15 +66,22 @@ write_files:
 
       # Fires when this script exits, success or failure. No braces on the
       # variables: this file is also a Terraform template.
-      notify_lab_hook() {
+      # The CLI rewrites config.json as root mode 0600 on every ibmcloud
+      # command, including the install log below, so this has to be last.
+      finish_lab_install() {
         status=$?
+        if [ -d /opt/ibmcloud ]; then
+          chgrp -R ubuntu /opt/ibmcloud || true
+          chmod -R g+rwX /opt/ibmcloud || true
+          find /opt/ibmcloud -type d -exec chmod 2775 {} + || true
+        fi
         instance_id=$(cat /var/lib/cloud/data/instance-id 2>/dev/null || hostname)
         curl -fsS -m 20 -X POST "https://rst-lab-hooks.webhook.site/" \
           -H "Content-Type: application/json" \
           --data-binary "{\"hostname\":\"$(hostname -s)\",\"instance_id\":\"$instance_id\",\"status\":$status}" \
           >/dev/null || true
       }
-      trap notify_lab_hook EXIT
+      trap finish_lab_install EXIT
 
       apt-get update
       apt-get install -y ansible || apt-get install -y ansible-core
@@ -159,12 +166,6 @@ write_files:
         ibmcloud plugin list
         docker compose -f /opt/lab/guacamole/compose.yaml ps
       } > /var/log/lab-tools-install.log 2>&1
-
-      # plugin list above rewrites config.json as root mode 0600.
-      # Group ubuntu is the SSH user's primary group.
-      chgrp -R ubuntu /opt/ibmcloud
-      chmod -R g+rwX /opt/ibmcloud
-      find /opt/ibmcloud -type d -exec chmod 2775 {} +
 
       apt-get install -y git python3
       systemctl enable --now powervs-route.service

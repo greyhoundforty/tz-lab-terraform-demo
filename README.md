@@ -1,6 +1,6 @@
 # Power Virtual Server lab
 
-The session clock is [`lab/timelinev2.html`](lab/timelinev2.html). The VPC and the Ubuntu server already exist. Guacamole is already running on that server. Terraform reads the VPC and creates the PowerVS resources.
+The session clock is [`lab/timelinev2.html`](lab/timelinev2.html). Before class, apply [`bootstrap/`](bootstrap/README.md). That creates the VPC and the Ubuntu server, and cloud-init on that server installs the lab tools and starts Guacamole. Students then apply `lab/terraform/`, which reads that VPC and creates the PowerVS resources.
 
 Students open `http://<floating-ip>:8080/guacamole/`, sign in as `student` with the password from their lab roster, and choose the connection named `Lab server`. The shell is `ubuntu`. Terraform, Ansible, the IBM Cloud CLI, the `power-iaas` plugin, and this repo are already on the server. The repo is cloned at `~/tz-lab-terraform-demo`.
 

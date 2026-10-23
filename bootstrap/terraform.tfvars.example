@@ -1,5 +1,11 @@
 # Copy to terraform.tfvars. That file is gitignored.
 
-student_instances    = ["demobox"]
-ssh_private_key_file = "~/.ssh/id_rsa"
-region               = "us-south"
+prefix         = "pvs-lab"
+region         = "us-south"
+zone           = "us-south-1"
+subnet_cidr    = "10.240.0.0/24"
+ssh_public_key = "ssh-ed25519 AAAA... lab"
+
+# After the server is up, a second apply can set the Guacamole password.
+# student_instances    = ["pvs-lab-abcd-vm"]
+# ssh_private_key_file = "~/.ssh/id_ed25519"

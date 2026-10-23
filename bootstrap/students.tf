@@ -51,8 +51,8 @@ resource "terraform_data" "guac_password" {
 
   lifecycle {
     precondition {
-      condition     = local.floating_ips[each.key] != ""
-      error_message = "Virtual server ${each.key} has no floating IP. Guacamole is reached through that address."
+      condition     = var.ssh_private_key_file != null && local.floating_ips[each.key] != ""
+      error_message = "Set ssh_private_key_file, and give ${each.key} a floating IP, before installing the Guacamole password."
     }
   }
 }
