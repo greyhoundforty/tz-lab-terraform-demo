@@ -113,6 +113,7 @@ write_files:
       chmod 0600 /home/ubuntu/.ssh/authorized_keys
       chmod 0600 /opt/lab/guacamole/lab-server
 
+      # Placeholder password. bootstrap Terraform replaces it per server.
       cat > /opt/lab/guacamole/user-mapping.xml <<'END'
       <user-mapping>
           <authorize username="student" password="pvs-lab">

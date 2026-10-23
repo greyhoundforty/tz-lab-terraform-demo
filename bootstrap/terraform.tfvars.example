@@ -1,0 +1,5 @@
+# Copy to terraform.tfvars. That file is gitignored.
+
+student_instances    = ["demobox"]
+ssh_private_key_file = "~/.ssh/id_rsa"
+region               = "us-south"

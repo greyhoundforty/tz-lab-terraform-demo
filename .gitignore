@@ -1,3 +1,6 @@
+lab/.DS_Store
+*.DS_Store
+
 # Local .terraform directories
 .terraform/
 
@@ -32,6 +35,9 @@ override.tf.json
 # Include tfplan files to ignore the plan output of command: terraform plan -out=tfplan
 # example: *tfplan*
 *.tfplan
+
+# Instructor roster written by bootstrap/. Contains Guacamole passwords.
+bootstrap/student-access.csv
 
 # Ignore CLI configuration files
 .terraformrc
