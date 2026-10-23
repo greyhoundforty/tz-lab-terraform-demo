@@ -6,7 +6,7 @@ variable "ibmcloud_api_key" {
 }
 
 variable "prefix" {
-  description = "Prefix for PowerVS resource names. Keep it short; IBM Cloud name limits apply."
+  description = "Start of each PowerVS resource name. Terraform appends a stable random suffix so a later lab does not reuse names left behind by an earlier one."
   type        = string
   default     = "pvs-lab"
 

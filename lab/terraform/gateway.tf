@@ -1,5 +1,5 @@
 resource "ibm_tg_gateway" "lab" {
-  name           = "${var.prefix}-tg"
+  name           = "${local.name_prefix}-tg"
   location       = var.region
   global         = false
   resource_group = data.ibm_is_vpc.existing.resource_group
@@ -8,7 +8,7 @@ resource "ibm_tg_gateway" "lab" {
 resource "ibm_tg_connection" "vpc" {
   gateway               = ibm_tg_gateway.lab.id
   network_type          = "vpc"
-  name                  = "${var.prefix}-vpc"
+  name                  = "${local.name_prefix}-vpc"
   network_id            = data.ibm_is_vpc.existing.crn
   default_prefix_filter = "permit"
 }
@@ -16,7 +16,7 @@ resource "ibm_tg_connection" "vpc" {
 resource "ibm_tg_connection" "powervs" {
   gateway               = ibm_tg_gateway.lab.id
   network_type          = "power_virtual_server"
-  name                  = "${var.prefix}-powervs"
+  name                  = "${local.name_prefix}-powervs"
   network_id            = ibm_pi_workspace.powervs.crn
   default_prefix_filter = "permit"
 }
@@ -29,7 +29,7 @@ resource "ibm_is_vpc_routing_table_route" "powervs" {
   vpc           = data.ibm_is_vpc.existing.id
   routing_table = data.ibm_is_vpc.existing.default_routing_table
   zone          = each.value
-  name          = "${var.prefix}-powervs-${each.value}"
+  name          = "${local.name_prefix}-powervs-${each.value}"
   destination   = var.powervs_cidr
   action        = "delegate"
   next_hop      = "0.0.0.0"

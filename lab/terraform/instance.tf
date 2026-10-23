@@ -32,7 +32,7 @@ resource "ibm_pi_image" "aix" {
 resource "ibm_pi_instance" "aix" {
   count = local.create_aix ? 1 : 0
 
-  pi_instance_name     = "${var.prefix}-aix"
+  pi_instance_name     = "${local.name_prefix}-aix"
   pi_memory            = var.pi_memory
   pi_processors        = var.pi_processors
   pi_proc_type         = "shared"

@@ -18,6 +18,11 @@ output "workspace_crn" {
   value       = ibm_pi_workspace.powervs.crn
 }
 
+output "name_prefix" {
+  description = "Prefix plus the random suffix used on resource names."
+  value       = local.name_prefix
+}
+
 output "ssh_key_name" {
   description = "PowerVS SSH key imported from the Cloud Shell public key."
   value       = ibm_pi_key.lab.pi_key_name
