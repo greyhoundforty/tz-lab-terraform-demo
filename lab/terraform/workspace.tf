@@ -1,7 +1,7 @@
 resource "ibm_pi_workspace" "powervs" {
   pi_name              = "${local.name_prefix}-ws"
   pi_datacenter        = var.pi_zone
-  pi_resource_group_id = data.ibm_is_vpc.existing.resource_group
+  pi_resource_group_id = local.resource_group
 }
 
 resource "ibm_pi_network" "private" {
@@ -20,6 +20,13 @@ resource "ibm_pi_network" "private" {
 
 resource "ibm_pi_key" "lab" {
   pi_key_name          = "${local.name_prefix}-key"
-  pi_ssh_key           = trimspace(var.ssh_public_key)
+  pi_ssh_key           = local.ssh_public_key
   pi_cloud_instance_id = ibm_pi_workspace.powervs.id
+
+  lifecycle {
+    precondition {
+      condition     = startswith(local.ssh_public_key, "ssh-rsa ")
+      error_message = "The file at ssh_public_key_file must be an RSA public key, starting with ssh-rsa. PowerVS rejects other key types."
+    }
+  }
 }

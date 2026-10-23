@@ -29,18 +29,15 @@ variable "pi_zone" {
 }
 
 variable "vpc_name" {
-  description = "Name of the VPC that already exists. Terraform reads it and does not create a VPC."
+  description = "Name of an existing VPC to attach with a transit gateway. Leave empty to create only the PowerVS workspace, network, and key."
   type        = string
+  default     = ""
 }
 
-variable "ssh_public_key" {
-  description = "RSA public key generated in Cloud Shell. Terraform imports it into the PowerVS workspace."
+variable "ssh_public_key_file" {
+  description = "Path to the RSA public key generated for PowerVS. Terraform reads this file."
   type        = string
-
-  validation {
-    condition     = startswith(trimspace(var.ssh_public_key), "ssh-rsa ")
-    error_message = "ssh_public_key must be an RSA public key, starting with ssh-rsa."
-  }
+  default     = "~/.ssh/pvs-lab.pub"
 }
 
 variable "powervs_cidr" {

@@ -51,7 +51,7 @@ resource "ibm_pi_instance" "aix" {
 # Runs on the VPC server where Terraform is executed. The delegate route in
 # the VPC table only forwards packets that arrive at the subnet gateway.
 resource "null_resource" "powervs_route" {
-  count = local.create_aix ? 1 : 0
+  count = local.create_aix && local.use_vpc ? 1 : 0
 
   triggers = {
     aix_ip       = ibm_pi_instance.aix[0].pi_network[0].ip_address

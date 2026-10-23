@@ -551,11 +551,10 @@ ls ~/tz-lab-terraform-demo/lab/terraform</code></pre>
               <pre><code>export IC_API_KEY="&lt;paste the API key&gt;"
 ssh-keygen -t rsa -b 4096 -f ~/.ssh/pvs-lab -N ""
 ibmcloud login --apikey "$IC_API_KEY" -r us-south
-ibmcloud is vpcs
 cat ~/.ssh/pvs-lab.pub</code></pre>
             </div>
             <p class="lab-label">Expect</p>
-            <p class="lab-result">Login succeeds for the lab account. <code>ibmcloud is vpcs</code> prints the VPC name for <code>vpc_name</code>. The public key starts with <code>ssh-rsa</code>. Keep this shell open so <code>IC_API_KEY</code> stays set.</p>
+            <p class="lab-result">Login succeeds for the lab account. The public key starts with <code>ssh-rsa</code>. Terraform reads that file from <code>~/.ssh/pvs-lab.pub</code>. Keep this shell open so <code>IC_API_KEY</code> stays set.</p>
           </article>
         </li>
 
@@ -578,7 +577,7 @@ cat ~/.ssh/pvs-lab.pub</code></pre>
                 </div>
               </div>
             </div>
-            <p>First plan and apply, still in the Guacamole shell. <code>aix_image_name</code> stays empty, so the AIX server stays out of this plan. Terraform reads the existing VPC. Read <code>workspace.tf</code> and <code>gateway.tf</code> while the workspace comes up. If you edit <code>terraform.tfvars</code> in <code>nano</code> or <code>vi</code>, use the on-screen <code>Ctrl</code> button and turn it off before Enter and before leaving the editor.</p>
+            <p>First plan and apply, still in the Guacamole shell. <code>aix_image_name</code> stays empty, so the AIX server stays out of this plan. Terraform reads <code>~/.ssh/pvs-lab.pub</code>. Leave <code>vpc_name</code> empty when this apply is not attaching a VPC. Read <code>workspace.tf</code> while the workspace comes up. If you edit <code>terraform.tfvars</code> in <code>nano</code> or <code>vi</code>, use the on-screen <code>Ctrl</code> button and turn it off before Enter and before leaving the editor.</p>
             <div class="lab-terminal">
               <div class="lab-terminal__bar" aria-hidden="true">
                 <span class="lab-terminal__dot"></span>
@@ -588,16 +587,15 @@ cat ~/.ssh/pvs-lab.pub</code></pre>
               </div>
               <pre><code>cd ~/tz-lab-terraform-demo/lab/terraform
 cp terraform.tfvars.example terraform.tfvars
-<span class="lab-terminal__comment"># set vpc_name from ibmcloud is vpcs</span>
-<span class="lab-terminal__comment"># set ssh_public_key to the ssh-rsa line from cat ~/.ssh/pvs-lab.pub</span>
-<span class="lab-terminal__comment"># leave aix_image_name empty</span>
+<span class="lab-terminal__comment"># leave vpc_name unset and aix_image_name empty</span>
+<span class="lab-terminal__comment"># the PowerVS key is read from ~/.ssh/pvs-lab.pub</span>
 
 terraform init
 terraform plan -out default.tfplan
 terraform apply default.tfplan</code></pre>
             </div>
             <p class="lab-label">Expect</p>
-            <p class="lab-result">The plan adds the PowerVS workspace, private network, PowerVS SSH key, transit gateway, both connections, and a delegate route on the existing VPC. Apply prints <code>workspace_crn</code>.</p>
+            <p class="lab-result">The plan adds the PowerVS workspace, private network, and PowerVS SSH key. When <code>vpc_name</code> is set, it also adds the transit gateway, both connections, and a delegate route. Apply prints <code>workspace_crn</code>.</p>
             <figure class="lab-tf">
               <figcaption class="lab-label">What init, plan, and apply do</figcaption>
               <div class="lab-tf__row">

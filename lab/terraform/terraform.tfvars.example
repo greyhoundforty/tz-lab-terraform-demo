@@ -1,8 +1,9 @@
 # Copy to terraform.tfvars. That file is gitignored.
 # ibmcloud_api_key can be omitted when IC_API_KEY is set in the environment.
+#
+# Terraform reads the PowerVS public key from ~/.ssh/pvs-lab.pub.
+# Leave vpc_name unset to create the workspace, network, and key without a VPC.
 
-vpc_name       = "existing-vpc-name"
-ssh_public_key = "ssh-rsa AAAA... pvs-lab"
 region         = "us-south"
 pi_zone        = "dal12"
 powervs_cidr   = "192.168.100.0/24"

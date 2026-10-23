@@ -8,12 +8,11 @@ In `nano` or `vi`, click `Ctrl` in the lower right of the Guacamole screen to se
 
 ## What Terraform creates
 
-From `lab/terraform/`, against the existing VPC named in `vpc_name`:
+From `lab/terraform/`:
 
 - PowerVS workspace and private network
-- PowerVS SSH key, imported from the RSA public key created in the Guacamole shell
-- Transit gateway, with connections to that VPC and the workspace
-- A delegate route on the VPC for the PowerVS CIDR
+- PowerVS SSH key, read from `~/.ssh/pvs-lab.pub`
+- When `vpc_name` is set: a transit gateway, connections to that VPC and the workspace, and a delegate route for the PowerVS CIDR
 - The AIX server, on the second apply, after `aix_image_name` is set
 
 ## In the browser session
@@ -24,18 +23,16 @@ Create the API key in the portal under Manage → Access (IAM) → API keys, the
 export IC_API_KEY="<paste the API key>"
 ssh-keygen -t rsa -b 4096 -f ~/.ssh/pvs-lab -N ""
 ibmcloud login --apikey "$IC_API_KEY" -r us-south
-ibmcloud is vpcs
-cat ~/.ssh/pvs-lab.pub
 ```
 
-`ibmcloud is vpcs` is the VPC name for `vpc_name`. The public key is `ssh_public_key`.
+Terraform reads `~/.ssh/pvs-lab.pub`. Leave `vpc_name` unset when this apply is not attaching a VPC.
 
 ```bash
 cd ~/tz-lab-terraform-demo/lab/terraform
 cp terraform.tfvars.example terraform.tfvars
 ```
 
-Set `vpc_name` and `ssh_public_key`. Leave `aix_image_name` empty.
+Leave `aix_image_name` empty.
 
 ```bash
 terraform init
@@ -43,7 +40,7 @@ terraform plan -out default.tfplan
 terraform apply default.tfplan
 ```
 
-The plan reads the existing VPC and adds the workspace, private network, PowerVS SSH key, transit gateway, both connections, and the VPC route. The AIX server is the second apply.
+The plan adds the workspace, private network, and PowerVS SSH key. When `vpc_name` is set, it also adds the transit gateway, both connections, and the VPC route. The AIX server is the second apply.
 
 Copy `workspace_crn` from the output.
 
@@ -53,7 +50,7 @@ ibmcloud pi workspace target $(terraform output --raw workspace_crn)
 ibmcloud pi image list-catalog
 ```
 
-Put one AIX image name into `aix_image_name`, then run `terraform plan -out default.tfplan` and `terraform apply default.tfplan` again. That plan adds the image copy and the AIX server on system type `s122`. Apply also installs a route on this server for the PowerVS CIDR through the subnet gateway.
+Put one AIX image name into `aix_image_name`, then run `terraform plan -out default.tfplan` and `terraform apply default.tfplan` again. That plan adds the image copy and the AIX server on system type `s122`. When `vpc_name` is set, apply also installs a route on this server for the PowerVS CIDR through the subnet gateway.
 
 ```bash
 terraform output -raw aix_ip_address
