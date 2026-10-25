@@ -18,6 +18,14 @@ resource "ibm_pi_network" "private" {
   }
 }
 
+# pub-vlan draws a public address from IBM. Cloud Shell and student
+# workstations can SSH there. They cannot reach the private workspace network.
+resource "ibm_pi_network" "public" {
+  pi_network_name      = "${local.name_prefix}-pub"
+  pi_cloud_instance_id = ibm_pi_workspace.powervs.id
+  pi_network_type      = "pub-vlan"
+}
+
 resource "ibm_pi_key" "lab" {
   pi_key_name          = "${local.name_prefix}-key"
   pi_ssh_key           = local.ssh_public_key

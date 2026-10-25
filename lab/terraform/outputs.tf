@@ -35,5 +35,10 @@ output "aix_instance_id" {
 
 output "aix_ip_address" {
   description = "Private IP of the AIX server on the PowerVS network."
-  value       = try(ibm_pi_instance.aix[0].pi_network[0].ip_address, null)
+  value       = local.aix_private_ip
+}
+
+output "aix_public_ip" {
+  description = "Public IP of the AIX server. Cloud Shell and a workstation SSH to this address."
+  value       = local.aix_public_ip
 }

@@ -1,714 +1,448 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>PowerVS lab timeline</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&amp;family=IBM+Plex+Sans:wght@400;600&amp;display=swap">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@carbon/styles@1.92.0/css/styles.css">
-  <style>
-    body {
-      line-height: 1.5;
-      font-family: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PowerVS lab timeline</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "Segoe UI", system-ui, sans-serif; font-size: 14px; line-height: 1.5; background: #f0f2f5; color: #1f2328; }
+  h1 { font-size: 20px; font-weight: 700; }
+  h2 { font-size: 15px; font-weight: 700; margin-bottom: 10px; }
+  h3 { font-size: 15px; font-weight: 700; }
+  code { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 12px; background: #f0f2f5; padding: 1px 4px; border-radius: 3px; }
 
-    .lab-page {
-      max-width: 78rem;
-      margin: 0 auto;
-      padding: 2rem 1.5rem 4rem;
-    }
+  #header { background: #1f2328; color: #fff; padding: 14px 20px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 2; }
+  #header .badge { background: #3b82d4; border-radius: 4px; padding: 2px 8px; font-size: 11px; font-weight: 600; }
+  #header p { font-size: 12px; color: #d1d5db; margin-left: auto; max-width: 42rem; text-align: right; }
 
-    .lab-kicker {
-      margin: 0;
-      color: var(--cds-text-secondary);
-      font-size: 0.75rem;
-      letter-spacing: 0.32px;
-      line-height: 1.333;
-    }
+  #list-panel { max-width: 960px; margin: 0 auto; padding: 16px; }
 
-    h1 {
-      margin: 0.25rem 0 0.75rem;
-      font-size: 2rem;
-      font-weight: 400;
-      line-height: 1.25;
-      color: var(--cds-text-primary);
-    }
+  .lede { font-size: 13px; color: #374151; margin-bottom: 12px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
+  .persona-chip { font-size: 10px; padding: 2px 6px; border-radius: 10px; background: #f0f2f5; color: #57606a; white-space: nowrap; border: 1px solid #e5e7eb; }
+  .ind-badge { font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 3px; background: #e5e7eb; color: #57606a; }
+  .ind-badge.cli { background: #dbeafe; color: #1e40af; }
+  .ind-badge.tf { background: #ede9fe; color: #5b21b6; }
+  .ind-badge.ansible { background: #d1fae5; color: #065f46; }
+  .ind-badge.aix { background: #fef3c7; color: #92400e; }
 
-    .lab-lede {
-      max-width: 46rem;
-      margin: 0 0 1rem;
-      color: var(--cds-text-primary);
-      font-size: 1rem;
-      line-height: 1.5;
-    }
+  .scale { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin-bottom: 20px; }
+  .section-title { font-size: 13px; font-weight: 700; padding: 10px 12px; border-radius: 6px; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-height: 72px; }
+  .section-title .cnt { font-size: 12px; font-weight: 500; opacity: .8; }
+  .section-title.s1 { background: #dbeafe; color: #1e40af; }
+  .section-title.s2 { background: #ccfbf1; color: #115e59; }
+  .section-title.s3 { background: #ede9fe; color: #5b21b6; }
+  .section-title.s4 { background: #fef3c7; color: #92400e; }
+  .section-title.s5 { background: #d1fae5; color: #065f46; }
 
-    .lab-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      margin: 0 0 2rem;
-    }
+  .state-group { margin-bottom: 12px; border: 1px solid #e5e7eb; border-left-width: 6px; border-radius: 6px; overflow: hidden; background: #fff; }
+  .state-group.s1 { border-left-color: #3b82d4; }
+  .state-group.s2 { border-left-color: #0d9488; }
+  .state-group.s3 { border-left-color: #7c5cd8; }
+  .state-group.s4 { border-left-color: #d97706; }
+  .state-group.s5 { border-left-color: #16a34a; }
+  .state-group-header { padding: 8px 12px; background: #f7f8fa; font-weight: 600; font-size: 13px; display: flex; align-items: center; gap: 8px; }
+  .state-group.s1 .state-group-header { background: #eff6ff; }
+  .state-group.s2 .state-group-header { background: #f0fdfa; }
+  .state-group.s3 .state-group-header { background: #f5f3ff; }
+  .state-group.s4 .state-group-header { background: #fffbeb; }
+  .state-group.s5 .state-group-header { background: #f0fdf4; }
+  .state-group.s1 .step-index { background: #3b82d4; }
+  .state-group.s2 .step-index { background: #0d9488; }
+  .state-group.s3 .step-index { background: #7c5cd8; }
+  .state-group.s4 .step-index { background: #d97706; }
+  .state-group.s5 .step-index { background: #16a34a; }
+  .state-count { font-size: 11px; color: #57606a; background: #f0f2f5; border-radius: 10px; padding: 1px 7px; margin-left: auto; white-space: nowrap; }
+  .step-index { font-size: 11px; font-weight: 700; color: #fff; background: #1f2328; border-radius: 10px; padding: 1px 7px; }
+  .step-body { padding: 12px 14px 14px; }
+  .step-body p { font-size: 13px; color: #374151; margin-top: 8px; }
+  .step-body .chips { margin: 8px 0 0; }
 
-    h2 {
-      margin: 0 0 1rem;
-      font-size: 1.25rem;
-      font-weight: 400;
-      line-height: 1.4;
-    }
+  .label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: #57606a; margin: 12px 0 6px; }
 
-    .lab-scale {
-      display: grid;
-      grid-template-columns:
-        minmax(6rem, 10fr)
-        minmax(6rem, 10fr)
-        minmax(10rem, 30fr)
-        minmax(8rem, 25fr)
-        minmax(7rem, 15fr);
-      gap: 0.25rem;
-      margin: 0 0 2.5rem;
-    }
+  .terminal { margin-top: 8px; border-radius: 6px; overflow: hidden; background: #1f2328; }
+  .terminal-bar { padding: 6px 12px; font-size: 11px; color: #9ca3af; border-bottom: 1px solid #374151; display: flex; align-items: center; gap: 8px; }
+  .copy { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; padding: 4px 10px; border: 2px solid #3b82d4; border-radius: 6px; cursor: pointer; background: #3b82d4; color: #fff; letter-spacing: .02em; font-family: inherit; }
+  .copy:hover { background: #2563eb; border-color: #2563eb; }
+  .terminal pre { padding: 10px 12px 12px; color: #f3f4f6; overflow-x: auto; }
+  .terminal pre code { background: transparent; color: inherit; padding: 0; font-size: 12px; line-height: 1.6; white-space: pre; }
+  .terminal .comment { color: #8d8d8d; }
 
-    .lab-scale__bar {
-      display: block;
-      height: 0.5rem;
-      margin-bottom: 0.5rem;
-    }
+  .url { margin-top: 8px; padding: 8px 10px; border: 1px solid #e5e7eb; border-radius: 4px; background: #f7f8fa; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
 
-    .lab-scale__seg--cli .lab-scale__bar {
-      background: var(--cds-tag-color-blue);
-    }
+  .guide-item { border-radius: 5px; padding: 8px 10px; font-size: 12px; line-height: 1.5; margin-top: 8px; }
+  .guide-item.cli { background: #f8fafc; border-left: 3px solid #3b82d4; }
+  .guide-item.tf { background: #faf5ff; border-left: 3px solid #7c5cd8; }
+  .guide-item.ansible { background: #f0fdf4; border-left: 3px solid #16a34a; }
+  .guide-title { font-weight: 700; font-size: 11px; margin-bottom: 4px; text-transform: uppercase; letter-spacing: .04em; }
 
-    .lab-scale__seg--terraform .lab-scale__bar {
-      background: var(--cds-tag-color-purple);
-    }
+  .overview { margin-top: 8px; padding: 8px 10px; border: 1px solid #e5e7eb; border-radius: 5px; background: #f7f8fa; }
+  .overview dl { margin: 0; }
+  .overview dt { font-size: 12px; font-weight: 700; margin-top: 8px; }
+  .overview dt:first-of-type { margin-top: 0; }
+  .overview dd { margin: 1px 0 0; font-size: 12px; line-height: 1.5; color: #374151; }
 
-    .lab-scale__seg--ansible .lab-scale__bar {
-      background: var(--cds-tag-color-teal);
-    }
+  .flow { display: flex; align-items: stretch; gap: 8px; margin-top: 8px; }
+  .flow-step { flex: 1; min-width: 0; background: #f7f8fa; border: 1px solid #e5e7eb; border-radius: 6px; padding: 8px 10px; border-top: 3px solid #7c5cd8; }
+  .flow-cmd { display: block; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 12px; font-weight: 700; }
+  .flow-what { display: block; margin-top: 4px; font-size: 12px; color: #57606a; }
+  .flow-arrow { align-self: center; color: #57606a; font-size: 14px; }
 
-    .lab-scale__name,
-    .lab-scale__mins {
-      display: block;
-    }
+  .after { margin-top: 8px; padding: 10px 12px; background: #fff; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 13px; color: #57606a; }
 
-    .lab-scale__name {
-      color: var(--cds-text-primary);
-      font-size: 0.75rem;
-      letter-spacing: 0.32px;
-      line-height: 1.333;
-    }
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 0 0 20px; }
+  .compare section { background: #fff; border: 1px solid #e5e7eb; border-radius: 6px; padding: 14px 16px; }
+  .compare h3 { margin: 0 0 6px; font-size: 14px; }
+  .compare ul { margin: 0; padding-left: 18px; }
+  .compare li { margin: 3px 0; font-size: 13px; color: #374151; }
 
-    .lab-scale__mins {
-      color: var(--cds-text-secondary);
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 0.75rem;
-      line-height: 1.333;
-    }
-
-    .lab-steps {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-    }
-
-    .lab-steps.cds--progress--vertical .lab-step {
-      display: grid;
-      inline-size: 100%;
-      min-inline-size: 0;
-      min-block-size: 0;
-    }
-
-    .lab-step {
-      display: grid;
-      grid-template-columns: 6.5rem 2rem minmax(0, 1fr);
-      column-gap: 1rem;
-    }
-
-    .lab-step__time {
-      padding-top: 1rem;
-      text-align: end;
-    }
-
-    .lab-step__range,
-    .lab-step__length {
-      display: block;
-      font-family: "IBM Plex Mono", monospace;
-    }
-
-    .lab-step__range {
-      color: var(--cds-text-primary);
-      font-size: 0.875rem;
-      font-weight: 600;
-    }
-
-    .lab-step__length {
-      color: var(--cds-text-secondary);
-      font-size: 0.75rem;
-    }
-
-    .lab-step__rail {
-      position: relative;
-      display: flex;
-      justify-content: center;
-      padding-top: 1.125rem;
-    }
-
-    .lab-step__rail::before {
-      content: "";
-      position: absolute;
-      top: 2.625rem;
-      bottom: -0.25rem;
-      left: 50%;
-      width: 1px;
-      background: var(--cds-border-subtle-01);
-    }
-
-    .lab-step:last-child .lab-step__rail::before {
-      display: none;
-    }
-
-    .lab-step__index {
-      position: relative;
-      z-index: 1;
-      display: grid;
-      place-items: center;
-      width: 1.5rem;
-      height: 1.5rem;
-      border-radius: 50%;
-      background: var(--cds-background-brand);
-      color: var(--cds-text-on-color);
-      font-size: 0.75rem;
-      font-weight: 600;
-      line-height: 1;
-    }
-
-    .lab-step__card {
-      margin-bottom: 1rem;
-    }
-
-    .lab-step__heading {
-      display: flex;
-      align-items: flex-start;
-      gap: 0.75rem;
-      margin-bottom: 0.75rem;
-    }
-
-    .lab-step__icons {
-      display: flex;
-      gap: 0.25rem;
-      color: var(--cds-icon-primary);
-      margin-top: 0.125rem;
-    }
-
-    .lab-icon {
-      width: 1.25rem;
-      height: 1.25rem;
-      fill: currentColor;
-    }
-
-    .lab-step h3 {
-      margin: 0 0 0.5rem;
-      font-size: 1rem;
-      font-weight: 600;
-      line-height: 1.375;
-    }
-
-    .lab-step p {
-      margin: 0.75rem 0 0;
-      font-size: 0.875rem;
-      line-height: 1.5;
-      letter-spacing: 0.16px;
-    }
-
-    code {
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 0.8125rem;
-      background: var(--cds-layer-01);
-      padding: 0 0.25rem;
-    }
-
-    .lab-label {
-      margin: 0.75rem 0 0.25rem;
-      color: var(--cds-text-secondary);
-      font-size: 0.75rem;
-      letter-spacing: 0.32px;
-      line-height: 1.333;
-    }
-
-    .lab-terminal {
-      margin-top: 0.75rem;
-      overflow: hidden;
-      border: 1px solid #393939;
-      border-radius: 0.25rem;
-      background: #161616;
-    }
-
-    .lab-terminal__bar {
-      display: flex;
-      align-items: center;
-      gap: 0.375rem;
-      padding: 0.4rem 0.75rem;
-      background: #393939;
-      color: #c6c6c6;
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 0.6875rem;
-      line-height: 1;
-    }
-
-    .lab-terminal__dot {
-      width: 0.5rem;
-      height: 0.5rem;
-      border-radius: 50%;
-      background: #6f6f6f;
-    }
-
-    .lab-terminal__dot:nth-child(1) {
-      background: #fa4d56;
-    }
-
-    .lab-terminal__dot:nth-child(2) {
-      background: #f1c21b;
-    }
-
-    .lab-terminal__dot:nth-child(3) {
-      background: #42be65;
-    }
-
-    .lab-terminal__title {
-      margin-left: 0.375rem;
-    }
-
-    .lab-terminal pre {
-      margin: 0;
-      padding: 0.85rem 1rem 1rem;
-      background: #161616;
-      color: #f4f4f4;
-    }
-
-    .lab-terminal pre code {
-      color: #f4f4f4;
-      font-size: 0.8125rem;
-      line-height: 1.6;
-    }
-
-    .lab-terminal__comment {
-      color: #8d8d8d;
-    }
-
-    .lab-tf {
-      margin: 1.25rem 0 0;
-    }
-
-    .lab-tf__row {
-      display: flex;
-      align-items: stretch;
-      gap: 0.75rem;
-      margin-top: 0.5rem;
-    }
-
-    .lab-tf__step {
-      flex: 1;
-      min-width: 0;
-      padding: 0.75rem;
-      background: var(--cds-layer-01);
-      border-top: 3px solid var(--cds-tag-color-purple);
-    }
-
-    .lab-tf__cmd,
-    .lab-tf__what {
-      display: block;
-    }
-
-    .lab-tf__cmd {
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 0.8125rem;
-      font-weight: 600;
-      color: var(--cds-text-primary);
-    }
-
-    .lab-tf__what {
-      margin-top: 0.35rem;
-      color: var(--cds-text-secondary);
-      font-size: 0.8125rem;
-      line-height: 1.4;
-    }
-
-    .lab-tf__arrow {
-      flex: 0 0 auto;
-      align-self: center;
-      width: 1.25rem;
-      height: 1px;
-      background: var(--cds-border-strong-01);
-      position: relative;
-    }
-
-    .lab-tf__arrow::after {
-      content: "";
-      position: absolute;
-      right: -1px;
-      top: -3px;
-      border-width: 4px 0 4px 6px;
-      border-style: solid;
-      border-color: transparent transparent transparent var(--cds-border-strong-01);
-    }
-
-    pre {
-      margin: 0;
-      padding: 0.75rem 1rem;
-      overflow-x: auto;
-      background: var(--cds-layer-01);
-      color: var(--cds-text-primary);
-    }
-
-    pre code {
-      padding: 0;
-      background: transparent;
-      font-size: 0.75rem;
-      line-height: 1.5;
-      white-space: pre;
-    }
-
-    .lab-result {
-      margin: 0.25rem 0 0;
-    }
-
-    .lab-after {
-      margin-top: 0.5rem;
-      padding: 1rem;
-      background: var(--cds-layer-01);
-      color: var(--cds-text-secondary);
-      font-size: 0.875rem;
-    }
-
-    @media (max-width: 42rem) {
-      .lab-scale {
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .lab-step {
-        grid-template-columns: 2rem minmax(0, 1fr);
-      }
-
-      .lab-step__time {
-        grid-column: 2;
-        padding-top: 0;
-        text-align: start;
-        margin-bottom: 0.25rem;
-      }
-
-      .lab-step__rail {
-        grid-row: 1 / span 2;
-        padding-top: 0.25rem;
-      }
-
-      .lab-tf__row {
-        flex-direction: column;
-      }
-
-      .lab-tf__arrow {
-        width: 1px;
-        height: 1.25rem;
-        align-self: center;
-      }
-
-      .lab-tf__arrow::after {
-        right: auto;
-        left: -3px;
-        top: auto;
-        bottom: -1px;
-        border-width: 6px 4px 0 4px;
-        border-color: var(--cds-border-strong-01) transparent transparent transparent;
-      }
-    }
-  </style>
+  @media (max-width: 720px) {
+    #header { flex-wrap: wrap; }
+    #header p { margin-left: 0; text-align: left; }
+    .scale { grid-template-columns: 1fr; }
+    .compare { grid-template-columns: 1fr; }
+    .flow { flex-direction: column; }
+    .flow-arrow { transform: rotate(90deg); align-self: center; }
+  }
+</style>
 </head>
-<body class="cds--white">
-  <svg xmlns="http://www.w3.org/2000/svg" hidden>
-    <symbol id="icon-terminal" viewBox="0 0 32 32"><path d="M26,4H6A2,2,0,0,0,4,6V26a2,2,0,0,0,2,2H26a2,2,0,0,0,2-2V6A2,2,0,0,0,26,4Zm0,2v4H6V6ZM6,26V12H26V26Z" transform="translate(0 0.01)"/><polygon points="10.76 16.18 13.58 19.01 10.76 21.84 12.17 23.25 16.41 19.01 12.17 14.77 10.76 16.18"/></symbol>
-    <symbol id="icon-catalog" viewBox="0 0 32 32"><path d="M26,2H8A2,2,0,0,0,6,4V8H4v2H6v5H4v2H6v5H4v2H6v4a2,2,0,0,0,2,2H26a2,2,0,0,0,2-2V4A2,2,0,0,0,26,2Zm0,26H8V24h2V22H8V17h2V15H8V10h2V8H8V4H26Z" transform="translate(0 0)"/><rect x="14" y="8" width="8" height="2"/><rect x="14" y="15" width="8" height="2"/><rect x="14" y="22" width="8" height="2"/></symbol>
-    <symbol id="icon-cloud" viewBox="0 0 32 32"><path d="M16,7h0a7.66,7.66,0,0,1,1.51.15,8,8,0,0,1,6.35,6.34l.26,1.35,1.35.24a5.5,5.5,0,0,1-1,10.92H7.5a5.5,5.5,0,0,1-1-10.92l1.34-.24.26-1.35A8,8,0,0,1,16,7m0-2a10,10,0,0,0-9.83,8.12A7.5,7.5,0,0,0,7.49,28h17a7.5,7.5,0,0,0,1.32-14.88,10,10,0,0,0-7.94-7.94A10.27,10.27,0,0,0,16,5Z" transform="translate(0)"/></symbol>
-    <symbol id="icon-network" viewBox="0 0 32 32"><path d="M30,30H22V22h8Zm-6-2h4V24H24Z"/><path d="M20,27H8A6,6,0,0,1,8,15h2v2H8a4,4,0,0,0,0,8H20Z"/><path d="M20,20H12V12h8Zm-6-2h4V14H14Z"/><path d="M24,17H22V15h2a4,4,0,0,0,0-8H12V5H24a6,6,0,0,1,0,12Z"/><path d="M10,10H2V2h8ZM4,8H8V4H4Z"/></symbol>
-    <symbol id="icon-credentials" viewBox="0 0 32 32"><path d="M16,22a4,4,0,1,0-4-4A4,4,0,0,0,16,22Zm0-6a2,2,0,1,1-2,2A2,2,0,0,1,16,16Z"/><rect x="14" y="6" width="4" height="2"/><path d="M24,2H8A2.002,2.002,0,0,0,6,4V28a2.0023,2.0023,0,0,0,2,2H24a2.0027,2.0027,0,0,0,2-2V4A2.0023,2.0023,0,0,0,24,2ZM20,28H12V26a1,1,0,0,1,1-1h6a1,1,0,0,1,1,1Zm2,0V26a3,3,0,0,0-3-3H13a3,3,0,0,0-3,3v2H8V4H24V28Z"/></symbol>
-    <symbol id="icon-server" viewBox="0 0 32 32"><circle cx="9" cy="6" r="1"/> <path d="M26,10H6A2.0021,2.0021,0,0,1,4,8V4A2.0021,2.0021,0,0,1,6,2H26a2.0021,2.0021,0,0,1,2,2V8A2.0021,2.0021,0,0,1,26,10ZM6,4V8H26V4Z" transform="translate(0 0)"/> <circle cx="9" cy="16" r="1"/> <path d="M26,20H6a2.0021,2.0021,0,0,1-2-2V14a2.0021,2.0021,0,0,1,2-2H26a2.0021,2.0021,0,0,1,2,2v4A2.0021,2.0021,0,0,1,26,20ZM6,14v4H26V14Z" transform="translate(0 0)"/> <circle cx="9" cy="26" r="1"/> <path d="M26,30H6a2.0021,2.0021,0,0,1-2-2V24a2.0021,2.0021,0,0,1,2-2H26a2.0021,2.0021,0,0,1,2,2v4A2.0021,2.0021,0,0,1,26,30ZM6,24v4H26V24Z" transform="translate(0 0)"/></symbol>
-    <symbol id="icon-volume" viewBox="0 0 32 32"><path d="M30,20h-4v2h4v2h-3c-1.1046,0-2,.8954-2,2v2c0,1.1046,.8954,2,2,2h5v-8c0-1.103-.8975-2-2-2Zm0,8h-3v-2h3v2Z"/> <path d="M24,22v-2h-3v-2h-2v2h-2v2h2v6c0,1.1025,.8975,2,2,2h3v-2h-3v-6h3Z"/> <path d="M14,20h-4v2h4v2h-3c-1.1046,0-2,.8954-2,2v2c0,1.1046,.8954,2,2,2h5v-8c0-1.103-.8975-2-2-2Zm0,8h-3v-2h3v2Z"/> <path d="M5,16.0005v4H2c-1.1025,0-2,.897-2,2v5.9995c0,1.1025,.8975,2,2,2H7v-13.9995h-2Zm-3,5.9995h3v6H2v-6Z"/> <path d="M4,14V5h7.5857l4,4h12.4143v8h2V9c-.0013-1.1041-.8959-1.9987-2-2h-11.5857l-3.4143-3.4141c-.3742-.3764-.8835-.5873-1.4143-.5859H4c-1.1041,.0013-1.9987,.8959-2,2V14h2Z"/></symbol>
-    <symbol id="icon-checkmark" viewBox="0 0 16 16"><rect id="_Transparent_Rectangle_" class="st0" width="16" height="16"/> <path d="M8,1C4.1,1,1,4.1,1,8c0,3.9,3.1,7,7,7s7-3.1,7-7C15,4.1,11.9,1,8,1z M7,11L4.3,8.3l0.9-0.8L7,9.3l4-3.9l0.9,0.8L7,11z"/> <path id="inner-path" class="st1" d="M7,11L4.3,8.3l0.9-0.8L7,9.3l4-3.9l0.9,0.8L7,11z"/></symbol>
-    <symbol id="icon-code" viewBox="0 0 32 32"><polygon points="31 16 24 23 22.59 21.59 28.17 16 22.59 10.41 24 9 31 16"/><polygon points="1 16 8 9 9.41 10.41 3.83 16 9.41 21.59 8 23 1 16"/><rect x="5.91" y="15" width="20.17" height="2" transform="translate(-3.6 27.31) rotate(-75)"/></symbol>
-    <symbol id="icon-time" viewBox="0 0 20 20"><path d="M10,19c-5,0-9-4-9-9s4-9,9-9s9,4,9,9S15,19,10,19z M10,2.3c-4.3,0-7.7,3.5-7.7,7.7s3.5,7.7,7.7,7.7s7.7-3.5,7.7-7.7 S14.3,2.3,10,2.3z"/> <polygon points="13,13.9 9.4,10.3 9.4,4 10.6,4 10.6,9.7 13.9,13 "/> <rect id="_Transparent_Rectangle_" class="st0" width="20" height="20"/></symbol>
-    <symbol id="icon-connect" viewBox="0 0 32 32"><path d="M23,16a7,7,0,0,0-4.18,1.39L14.6,13.17A6.86,6.86,0,0,0,16,9a7,7,0,1,0-2.81,5.59l4.21,4.22A7,7,0,1,0,23,16ZM4,9a5,5,0,1,1,5,5A5,5,0,0,1,4,9Z" transform="translate(0 0.01)"/></symbol>
-  </svg>
-
-  <main class="lab-page">
-    <p class="lab-kicker">90-minute lab</p>
+<body>
+  <header id="header">
     <h1>Power Virtual Server session</h1>
-    <p class="lab-lede">The VPC and the Ubuntu server already exist. Guacamole is already running on that server. Each student opens it in a browser and lands in a shell as <code>ubuntu</code>. From that shell they create the PowerVS SSH key and apply Terraform, which reads the existing VPC and creates the workspace, the PowerVS SSH key, the transit gateway, and the AIX server.</p>
-    <div class="lab-tags">
-      <span class="cds--tag cds--tag--blue">IBM Cloud CLI</span>
-      <span class="cds--tag cds--tag--purple">Terraform</span>
-      <span class="cds--tag cds--tag--teal">Ansible</span>
-      <span class="cds--tag cds--tag--gray">AIX</span>
+    <span class="badge">90 min</span>
+    <p>Students use Cloud Shell or a terminal on their workstation, create the PowerVS key, and apply Terraform. They SSH to the AIX server on its public address.</p>
+  </header>
+
+  <div id="list-panel">
+    <p class="lede">Each student opens IBM Cloud Shell from the portal, or the terminal built into their workstation. From that shell they create the PowerVS SSH key and apply Terraform, which reads <code>~/.ssh/pvs-lab.pub</code>. The first apply creates the workspace, a private network, a public network, and the SSH key. The second apply creates the AIX server on both networks. SSH, ping, and Ansible use <code>aix_public_ip</code>. Leave <code>vpc_name</code> empty unless this apply is attaching an existing VPC. When it is set, Terraform also creates the transit gateway and a delegate route.</p>
+    <div class="chips">
+      <span class="ind-badge cli">IBM Cloud CLI</span>
+      <span class="ind-badge tf">Terraform</span>
+      <span class="ind-badge ansible">Ansible</span>
+      <span class="ind-badge aix">AIX</span>
     </div>
 
-    <section aria-labelledby="scale-heading">
-      <h2 id="scale-heading">How the 90 minutes split</h2>
-      <div class="lab-scale">
-        <div class="lab-scale__seg lab-scale__seg--cli">
-          <span class="lab-scale__bar"></span>
-          <span class="lab-scale__name">Browser session</span>
-          <span class="lab-scale__mins">10 min</span>
+    <h2>How the 90 minutes split</h2>
+    <div class="scale">
+      <div class="section-title s1">Open a shell <span class="cnt">10 min</span></div>
+      <div class="section-title s2">API key and SSH key <span class="cnt">10 min</span></div>
+      <div class="section-title s3">Workspace and networks <span class="cnt">30 min</span></div>
+      <div class="section-title s4">AIX server <span class="cnt">25 min</span></div>
+      <div class="section-title s5">Ansible <span class="cnt">15 min</span></div>
+    </div>
+
+    <div class="compare">
+      <section>
+        <h3>How this page works</h3>
+        <ul>
+          <li><b>Copy</b> puts one command block on your clipboard. Grey <code># comments</code> sit above each command and are left out.</li>
+          <li>Terraform reads the PowerVS public key from <code>~/.ssh/pvs-lab.pub</code>. You do not paste it into <code>terraform.tfvars</code>.</li>
+          <li>Save the plan with <code>terraform plan -out default.tfplan</code>, then apply that file.</li>
+          <li>Leave <code>vpc_name</code> empty unless this apply is attaching an existing VPC.</li>
+          <li>SSH, ping, and Ansible use <code>aix_public_ip</code>. Cloud Shell and a workstation can reach that address.</li>
+        </ul>
+      </section>
+      <section>
+        <h3>What you build today</h3>
+        <ul>
+          <li>A <b>PowerVS workspace</b>, a private network, and a public network</li>
+          <li>A <b>PowerVS SSH key</b> imported from <code>~/.ssh/pvs-lab.pub</code></li>
+          <li>An <b>AIX virtual server</b> on system type <code>s122</code>, on the second apply, with a public address for SSH</li>
+          <li>An <b>Ansible check</b> that reads <code>oslevel</code> and pings back from AIX</li>
+          <li>When <code>vpc_name</code> is set, a <b>transit gateway</b> and a delegate route into that VPC</li>
+        </ul>
+      </section>
+    </div>
+
+    <h2>Session order</h2>
+
+    <section class="state-group s1">
+      <div class="state-group-header">
+        <span class="step-index">1</span>
+        <h3>Open Cloud Shell or your workstation terminal</h3>
+        <span class="state-count">0–10 · 10 min</span>
+      </div>
+      <div class="step-body">
+        <div class="chips"><span class="ind-badge cli">IBM Cloud CLI</span></div>
+        <p>In the IBM Cloud portal, open Cloud Shell from the menu. Or open the terminal on your workstation. Run the rest of the lab in that shell. Clone the repo if it is not already on this machine.</p>
+        <div class="terminal">
+          <div class="terminal-bar">cloud shell or workstation <button type="button" class="copy">Copy</button></div>
+          <pre><code><span class="comment"># confirm Terraform is installed</span>
+terraform version
+<span class="comment"># confirm the CLI is installed</span>
+ibmcloud version
+<span class="comment"># where this repo will live</span>
+repo=~/tz-lab-terraform-demo
+<span class="comment"># skip the clone if it is already here</span>
+test -d "$repo" || git clone https://github.com/greyhoundforty/tz-lab-terraform-demo.git "$repo"
+<span class="comment"># the directory you apply from</span>
+ls "$repo/lab/terraform"</code></pre>
         </div>
-        <div class="lab-scale__seg lab-scale__seg--cli">
-          <span class="lab-scale__bar"></span>
-          <span class="lab-scale__name">API key and SSH key</span>
-          <span class="lab-scale__mins">10 min</span>
+        <div class="guide-item cli">
+          <div class="guide-title">Expect</div>
+          Terraform and the IBM Cloud CLI print a version. The lab directory is on this machine.
         </div>
-        <div class="lab-scale__seg lab-scale__seg--terraform">
-          <span class="lab-scale__bar"></span>
-          <span class="lab-scale__name">Workspace and gateway</span>
-          <span class="lab-scale__mins">30 min</span>
-        </div>
-        <div class="lab-scale__seg lab-scale__seg--terraform">
-          <span class="lab-scale__bar"></span>
-          <span class="lab-scale__name">AIX server</span>
-          <span class="lab-scale__mins">25 min</span>
-        </div>
-        <div class="lab-scale__seg lab-scale__seg--ansible">
-          <span class="lab-scale__bar"></span>
-          <span class="lab-scale__name">Ansible</span>
-          <span class="lab-scale__mins">15 min</span>
+        <div class="overview">
+          <div class="guide-title">Overview</div>
+          <dl>
+            <dt>Cloud Shell</dt>
+            <dd>The browser terminal in the IBM Cloud portal. Open it from the menu, or use the terminal on your workstation. Either shell is where the rest of this lab runs, so keep the same one open.</dd>
+            <dt>IBM Cloud CLI</dt>
+            <dd><code>ibmcloud</code> is the command-line client for the account. <code>ibmcloud version</code> prints the client version when it is installed. Commands for a service, including PowerVS, come from a plugin.</dd>
+            <dt>Terraform</dt>
+            <dd>The tool that creates the workspace, both networks, the key, and the AIX server from <code>lab/terraform/</code>. <code>terraform version</code> confirms it is installed before you clone the repo.</dd>
+          </dl>
         </div>
       </div>
     </section>
 
-    <section aria-labelledby="order-heading">
-      <h2 id="order-heading">Session order</h2>
-      <ol class="lab-steps cds--progress cds--progress--vertical">
-        <li class="lab-step cds--progress-step cds--progress-step--current">
-          <div class="lab-step__time">
-            <span class="lab-step__range">0–10</span>
-            <span class="lab-step__length">10 min</span>
-          </div>
-          <div class="lab-step__rail" aria-hidden="true"><span class="lab-step__index">1</span></div>
-          <article class="cds--tile lab-step__card">
-            <div class="lab-step__heading">
-              <div class="lab-step__icons" aria-hidden="true">
-                <svg class="lab-icon"><use href="#icon-terminal"></use></svg>
-                <svg class="lab-icon"><use href="#icon-server"></use></svg>
-              </div>
-              <div>
-                <h3>Open the server in the browser</h3>
-                <div class="lab-tags">
-                  <span class="cds--tag cds--tag--blue cds--tag--sm">Guacamole</span>
-                </div>
-              </div>
-            </div>
-            <p>Log in to the IBM Cloud portal only to confirm the account. The shell is Guacamole, already running on the Ubuntu server. Open the lab URL, sign in as <code>student</code> with the password from the lab roster, and choose the connection named <code>Lab server</code>.</p>
-            <p class="lab-label">Open</p>
-            <pre><code>http://&lt;floating-ip&gt;:8080/guacamole/</code></pre>
-            <div class="lab-terminal">
-              <div class="lab-terminal__bar" aria-hidden="true">
-                <span class="lab-terminal__dot"></span>
-                <span class="lab-terminal__dot"></span>
-                <span class="lab-terminal__dot"></span>
-                <span class="lab-terminal__title">ubuntu@demoguac</span>
-              </div>
-              <pre><code>whoami
-terraform version
-ibmcloud plugin list
-ls ~/tz-lab-terraform-demo/lab/terraform</code></pre>
-            </div>
-            <p class="lab-label">Expect</p>
-            <p class="lab-result">The prompt is <code>ubuntu</code>. Terraform, the IBM Cloud CLI, and <code>power-iaas</code> are already installed. The demo repo is already cloned.</p>
-            <p>In <code>nano</code> or <code>vi</code>, click <code>Ctrl</code> in the lower right of the Guacamole screen to send a control key. Click it again so it is unselected before Enter, and before the keystrokes that leave the editor. A selected <code>Ctrl</code> stays down for the next key.</p>
-          </article>
-        </li>
-
-        <li class="lab-step cds--progress-step cds--progress-step--incomplete">
-          <div class="lab-step__time">
-            <span class="lab-step__range">10–20</span>
-            <span class="lab-step__length">10 min</span>
-          </div>
-          <div class="lab-step__rail" aria-hidden="true"><span class="lab-step__index">2</span></div>
-          <article class="cds--tile lab-step__card">
-            <div class="lab-step__heading">
-              <div class="lab-step__icons" aria-hidden="true">
-                <svg class="lab-icon"><use href="#icon-credentials"></use></svg>
-              </div>
-              <div>
-                <h3>Create the API key and the PowerVS SSH key</h3>
-                <div class="lab-tags">
-                  <span class="cds--tag cds--tag--blue cds--tag--sm">IBM Cloud CLI</span>
-                </div>
-              </div>
-            </div>
-            <p>In the portal, open Manage, then Access (IAM), then API keys, and create a key. Paste it into this shell. The RSA key created here is the PowerVS key Terraform will import. It is separate from the key Guacamole already uses to reach this server.</p>
-            <div class="lab-terminal">
-              <div class="lab-terminal__bar" aria-hidden="true">
-                <span class="lab-terminal__dot"></span>
-                <span class="lab-terminal__dot"></span>
-                <span class="lab-terminal__dot"></span>
-                <span class="lab-terminal__title">ubuntu@demoguac</span>
-              </div>
-              <pre><code>export IC_API_KEY="&lt;paste the API key&gt;"
+    <section class="state-group s2">
+      <div class="state-group-header">
+        <span class="step-index">2</span>
+        <h3>Create the API key and the PowerVS SSH key</h3>
+        <span class="state-count">10–20 · 10 min</span>
+      </div>
+      <div class="step-body">
+        <div class="chips"><span class="ind-badge cli">IBM Cloud CLI</span></div>
+        <p>In the portal, open Manage, then Access (IAM), then API keys, and create a key. Paste it into this shell. The RSA key created here is the PowerVS key Terraform will import.</p>
+        <div class="terminal">
+          <div class="terminal-bar">cloud shell or workstation <button type="button" class="copy">Copy</button></div>
+          <pre><code><span class="comment"># Manage, Access (IAM), API keys</span>
+export IC_API_KEY="&lt;paste the API key&gt;"
+<span class="comment"># -N "" means no passphrase; PowerVS requires RSA</span>
 ssh-keygen -t rsa -b 4096 -f ~/.ssh/pvs-lab -N ""
+<span class="comment"># us-south pairs with PowerVS zone dal12</span>
 ibmcloud login --apikey "$IC_API_KEY" -r us-south
+<span class="comment"># must start with ssh-rsa; Terraform reads this file</span>
 cat ~/.ssh/pvs-lab.pub</code></pre>
-            </div>
-            <p class="lab-label">Expect</p>
-            <p class="lab-result">Login succeeds for the lab account. The public key starts with <code>ssh-rsa</code>. Terraform reads that file from <code>~/.ssh/pvs-lab.pub</code>. Keep this shell open so <code>IC_API_KEY</code> stays set.</p>
-          </article>
-        </li>
+        </div>
+        <div class="guide-item cli">
+          <div class="guide-title">Expect</div>
+          Login succeeds for the lab account. The public key starts with <code>ssh-rsa</code>. Terraform reads that file from <code>~/.ssh/pvs-lab.pub</code>. Keep this shell open so <code>IC_API_KEY</code> stays set.
+        </div>
+        <div class="overview">
+          <div class="guide-title">Overview</div>
+          <dl>
+            <dt>API key</dt>
+            <dd>Created under Manage, Access (IAM), API keys. <code>IC_API_KEY</code> holds it in this shell. Terraform and <code>ibmcloud login</code> both read that variable.</dd>
+            <dt>PowerVS SSH key</dt>
+            <dd>An RSA key pair at <code>~/.ssh/pvs-lab</code>. PowerVS imports a public key that starts with <code>ssh-rsa</code>. Terraform reads the <code>.pub</code> file. Later you log in to AIX as <code>root</code> with the private file.</dd>
+          </dl>
+        </div>
+      </div>
+    </section>
 
-        <li class="lab-step cds--progress-step cds--progress-step--incomplete">
-          <div class="lab-step__time">
-            <span class="lab-step__range">20–50</span>
-            <span class="lab-step__length">30 min</span>
-          </div>
-          <div class="lab-step__rail" aria-hidden="true"><span class="lab-step__index">3</span></div>
-          <article class="cds--tile lab-step__card">
-            <div class="lab-step__heading">
-              <div class="lab-step__icons" aria-hidden="true">
-                <svg class="lab-icon"><use href="#icon-cloud"></use></svg>
-                <svg class="lab-icon"><use href="#icon-network"></use></svg>
-              </div>
-              <div>
-                <h3>Create the workspace, SSH key, and transit gateway</h3>
-                <div class="lab-tags">
-                  <span class="cds--tag cds--tag--purple cds--tag--sm">Terraform</span>
-                </div>
-              </div>
-            </div>
-            <p>First plan and apply, still in the Guacamole shell. <code>aix_image_name</code> stays empty, so the AIX server stays out of this plan. Terraform reads <code>~/.ssh/pvs-lab.pub</code>. Leave <code>vpc_name</code> empty when this apply is not attaching a VPC. Read <code>workspace.tf</code> while the workspace comes up. If you edit <code>terraform.tfvars</code> in <code>nano</code> or <code>vi</code>, use the on-screen <code>Ctrl</code> button and turn it off before Enter and before leaving the editor.</p>
-            <div class="lab-terminal">
-              <div class="lab-terminal__bar" aria-hidden="true">
-                <span class="lab-terminal__dot"></span>
-                <span class="lab-terminal__dot"></span>
-                <span class="lab-terminal__dot"></span>
-                <span class="lab-terminal__title">ubuntu@demoguac</span>
-              </div>
-              <pre><code>cd ~/tz-lab-terraform-demo/lab/terraform
+    <section class="state-group s3">
+      <div class="state-group-header">
+        <span class="step-index">3</span>
+        <h3>Create the workspace, networks, and SSH key</h3>
+        <span class="state-count">20–50 · 30 min</span>
+      </div>
+      <div class="step-body">
+        <div class="chips"><span class="ind-badge tf">Terraform</span></div>
+        <p>First plan and apply, still in this shell. <code>aix_image_name</code> stays empty, so the AIX server stays out of this plan. This plan creates the private network and the public network. The server joins both on the next apply. Terraform reads <code>~/.ssh/pvs-lab.pub</code>. Leave <code>vpc_name</code> empty unless this apply is attaching an existing VPC. Read <code>workspace.tf</code> while the workspace comes up.</p>
+        <div class="terminal">
+          <div class="terminal-bar">cloud shell or workstation <button type="button" class="copy">Copy</button></div>
+          <pre><code><span class="comment"># lab stack</span>
+cd ~/tz-lab-terraform-demo/lab/terraform
+<span class="comment"># local file, gitignored</span>
 cp terraform.tfvars.example terraform.tfvars
-<span class="lab-terminal__comment"># leave vpc_name unset and aix_image_name empty</span>
-<span class="lab-terminal__comment"># the PowerVS key is read from ~/.ssh/pvs-lab.pub</span>
+<span class="comment"># leave vpc_name unset and aix_image_name empty</span>
+<span class="comment"># the PowerVS key is read from ~/.ssh/pvs-lab.pub</span>
 
+<span class="comment"># download the IBM provider</span>
 terraform init
+<span class="comment"># save the workspace, networks, and key</span>
 terraform plan -out default.tfplan
+<span class="comment"># create what the plan saved; prints workspace_crn</span>
 terraform apply default.tfplan</code></pre>
-            </div>
-            <p class="lab-label">Expect</p>
-            <p class="lab-result">The plan adds the PowerVS workspace, private network, and PowerVS SSH key. When <code>vpc_name</code> is set, it also adds the transit gateway, both connections, and a delegate route. Apply prints <code>workspace_crn</code>.</p>
-            <figure class="lab-tf">
-              <figcaption class="lab-label">What init, plan, and apply do</figcaption>
-              <div class="lab-tf__row">
-                <div class="lab-tf__step">
-                  <span class="lab-tf__cmd">init</span>
-                  <span class="lab-tf__what">Download the IBM provider and the modules for this directory.</span>
-                </div>
-                <span class="lab-tf__arrow" aria-hidden="true"></span>
-                <div class="lab-tf__step">
-                  <span class="lab-tf__cmd">plan -out</span>
-                  <span class="lab-tf__what">Read the existing VPC and save the workspace, key, and gateway it will add in <code>default.tfplan</code>.</span>
-                </div>
-                <span class="lab-tf__arrow" aria-hidden="true"></span>
-                <div class="lab-tf__step">
-                  <span class="lab-tf__cmd">apply</span>
-                  <span class="lab-tf__what">Create the resources saved in <code>default.tfplan</code> and record <code>workspace_crn</code>.</span>
-                </div>
-              </div>
-            </figure>
-          </article>
-        </li>
-
-        <li class="lab-step cds--progress-step cds--progress-step--incomplete">
-          <div class="lab-step__time">
-            <span class="lab-step__range">50–75</span>
-            <span class="lab-step__length">25 min</span>
+        </div>
+        <div class="guide-item tf">
+          <div class="guide-title">Expect</div>
+          The plan adds the PowerVS workspace, private network, public network, and PowerVS SSH key. When <code>vpc_name</code> is set, it also adds the transit gateway, both connections, and a delegate route. Apply prints <code>workspace_crn</code>.
+        </div>
+        <div class="overview">
+          <div class="guide-title">Overview</div>
+          <dl>
+            <dt>PowerVS workspace</dt>
+            <dd>The container for this lab's network, SSH key, images, and servers. The zone is <code>dal12</code>, which pairs with region <code>us-south</code>. Apply prints <code>workspace_crn</code>, the id later commands target.</dd>
+            <dt>Private network</dt>
+            <dd>The workspace network <code>192.168.100.0/24</code>. The AIX server takes an address on it at the next apply. Cloud Shell and a workstation cannot reach this address.</dd>
+            <dt>Public network</dt>
+            <dd>A <code>pub-vlan</code> network on the workspace. IBM assigns the public address when the AIX server is created. SSH, ping, and Ansible use <code>aix_public_ip</code>.</dd>
+            <dt>Transit gateway</dt>
+            <dd>Created when <code>vpc_name</code> is set. It connects the workspace to that VPC and adds a delegate route for the PowerVS CIDR.</dd>
+          </dl>
+        </div>
+        <p class="label">What init, plan, and apply do</p>
+        <div class="flow">
+          <div class="flow-step">
+            <span class="flow-cmd">init</span>
+            <span class="flow-what">Download the IBM provider and the modules for this directory.</span>
           </div>
-          <div class="lab-step__rail" aria-hidden="true"><span class="lab-step__index">4</span></div>
-          <article class="cds--tile lab-step__card">
-            <div class="lab-step__heading">
-              <div class="lab-step__icons" aria-hidden="true">
-                <svg class="lab-icon"><use href="#icon-catalog"></use></svg>
-                <svg class="lab-icon"><use href="#icon-server"></use></svg>
-              </div>
-              <div>
-                <h3>Create the AIX virtual server</h3>
-                <div class="lab-tags">
-                  <span class="cds--tag cds--tag--blue cds--tag--sm">IBM Cloud CLI</span>
-                  <span class="cds--tag cds--tag--purple cds--tag--sm">Terraform</span>
-                </div>
-              </div>
-            </div>
-            <p>Target the new workspace, copy an AIX image name, and apply again. Read <code>instance.tf</code> while the server provisions.</p>
-            <div class="lab-terminal">
-              <div class="lab-terminal__bar" aria-hidden="true">
-                <span class="lab-terminal__dot"></span>
-                <span class="lab-terminal__dot"></span>
-                <span class="lab-terminal__dot"></span>
-                <span class="lab-terminal__title">ubuntu@demoguac</span>
-              </div>
-              <pre><code>ibmcloud login --apikey "$IC_API_KEY" -r us-south
-<span class="lab-terminal__comment"># still in ~/tz-lab-terraform-demo/lab/terraform</span>
+          <span class="flow-arrow" aria-hidden="true">→</span>
+          <div class="flow-step">
+            <span class="flow-cmd">plan -out</span>
+            <span class="flow-what">Save the workspace, private network, public network, and SSH key in <code>default.tfplan</code>. When <code>vpc_name</code> is set, also save the transit gateway.</span>
+          </div>
+          <span class="flow-arrow" aria-hidden="true">→</span>
+          <div class="flow-step">
+            <span class="flow-cmd">apply</span>
+            <span class="flow-what">Create the resources saved in <code>default.tfplan</code> and record <code>workspace_crn</code>.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="state-group s4">
+      <div class="state-group-header">
+        <span class="step-index">4</span>
+        <h3>Create the AIX virtual server</h3>
+        <span class="state-count">50–75 · 25 min</span>
+      </div>
+      <div class="step-body">
+        <div class="chips">
+          <span class="ind-badge cli">IBM Cloud CLI</span>
+          <span class="ind-badge tf">Terraform</span>
+        </div>
+        <p>Target the new workspace, copy an AIX image name, and apply again. Read <code>instance.tf</code> while the server provisions.</p>
+        <div class="terminal">
+          <div class="terminal-bar">cloud shell or workstation <button type="button" class="copy">Copy</button></div>
+          <pre><code><span class="comment"># only if this shell is no longer logged in</span>
+ibmcloud login --apikey "$IC_API_KEY" -r us-south
+<span class="comment"># still in ~/tz-lab-terraform-demo/lab/terraform</span>
+<span class="comment"># catalog commands need a targeted workspace</span>
 ibmcloud pi workspace target $(terraform output --raw workspace_crn)
+<span class="comment"># copy an AIX 7.3 image name</span>
 ibmcloud pi image list-catalog
 
-<span class="lab-terminal__comment"># lab/terraform/terraform.tfvars</span>
+<span class="comment"># lab/terraform/terraform.tfvars</span>
+<span class="comment"># was empty on the first apply</span>
 aix_image_name = "&lt;name from image list-catalog&gt;"
 
+<span class="comment"># adds the image copy and the AIX server</span>
 terraform plan -out default.tfplan
+<span class="comment"># system type s122</span>
 terraform apply default.tfplan
-terraform output -raw aix_ip_address</code></pre>
-            </div>
-            <p class="lab-label">Expect</p>
-            <p class="lab-result">The catalog lists stock images. The plan adds the image copy and the AIX server on system type <code>s122</code>. Apply adds a route on this server for the PowerVS CIDR through the subnet gateway, and prints <code>aix_ip_address</code>.</p>
-          </article>
-        </li>
+<span class="comment"># public address Cloud Shell and this workstation can reach</span>
+terraform output -raw aix_public_ip</code></pre>
+        </div>
+        <div class="guide-item tf">
+          <div class="guide-title">Expect</div>
+          The catalog lists stock images. The plan adds the image copy and the AIX server on system type <code>s122</code>, attached to the public network and the private network. A server created before the public network is replaced, so the new server boots with the public address configured. Apply adds a route on this server for the PowerVS CIDR through the subnet gateway when <code>vpc_name</code> is set, and prints <code>aix_public_ip</code>.
+        </div>
+        <div class="overview">
+          <div class="guide-title">Overview</div>
+          <dl>
+            <dt>PowerVS plugin</dt>
+            <dd>The <code>power-iaas</code> plugin adds the <code>ibmcloud pi</code> commands. <code>workspace target</code> points them at the workspace from the last apply, which <code>image list-catalog</code> needs. Install it with <code>ibmcloud plugin install power-iaas -f</code> when <code>ibmcloud pi</code> is not a command yet.</dd>
+            <dt>Stock image</dt>
+            <dd><code>image list-catalog</code> lists the AIX images IBM provides. Copy a 7.3 name into <code>aix_image_name</code>. The next apply copies that image into the workspace.</dd>
+            <dt>AIX virtual server</dt>
+            <dd>A shared-processor LPAR on system type <code>s122</code>, with 4 GiB of memory. It has a private address and a public address. SSH from this shell uses <code>aix_public_ip</code>.</dd>
+          </dl>
+        </div>
+      </div>
+    </section>
 
-        <li class="lab-step cds--progress-step cds--progress-step--incomplete">
-          <div class="lab-step__time">
-            <span class="lab-step__range">75–90</span>
-            <span class="lab-step__length">15 min</span>
-          </div>
-          <div class="lab-step__rail" aria-hidden="true"><span class="lab-step__index">5</span></div>
-          <article class="cds--tile lab-step__card">
-            <div class="lab-step__heading">
-              <div class="lab-step__icons" aria-hidden="true">
-                <svg class="lab-icon"><use href="#icon-checkmark"></use></svg>
-              </div>
-              <div>
-                <h3>Confirm the workspace and the server</h3>
-                <div class="lab-tags">
-                  <span class="cds--tag cds--tag--blue cds--tag--sm">IBM Cloud CLI</span>
-                  <span class="cds--tag cds--tag--teal cds--tag--sm">Ansible</span>
-                </div>
-              </div>
-            </div>
-            <p>Start in <code>~/tz-lab-terraform-demo/lab/terraform</code>. Ping the AIX address, then run the playbook from this shell. It logs in as <code>root</code> with the PowerVS key. After it finishes, SSH in the same way. The first connection asks you to trust the host key. Answer <code>yes</code>.</p>
-            <div class="lab-terminal">
-              <div class="lab-terminal__bar" aria-hidden="true">
-                <span class="lab-terminal__dot"></span>
-                <span class="lab-terminal__dot"></span>
-                <span class="lab-terminal__dot"></span>
-                <span class="lab-terminal__title">ubuntu@demoguac</span>
-              </div>
-              <pre><code>ibmcloud pi workspace context
+    <section class="state-group s5">
+      <div class="state-group-header">
+        <span class="step-index">5</span>
+        <h3>Confirm the workspace and the server</h3>
+        <span class="state-count">75–90 · 15 min</span>
+      </div>
+      <div class="step-body">
+        <div class="chips">
+          <span class="ind-badge cli">IBM Cloud CLI</span>
+          <span class="ind-badge ansible">Ansible</span>
+        </div>
+        <p>Start in <code>~/tz-lab-terraform-demo/lab/terraform</code>. Ping the public AIX address, then run the playbook from this shell. It logs in as <code>root</code> with the PowerVS key. After it finishes, SSH in the same way. The first connection asks you to trust the host key. Answer <code>yes</code>.</p>
+        <div class="terminal">
+          <div class="terminal-bar">cloud shell or workstation <button type="button" class="copy">Copy</button></div>
+          <pre><code><span class="comment"># CRN should match workspace_crn</span>
+ibmcloud pi workspace context
+<span class="comment"># the AIX server</span>
 ibmcloud pi instance list
+<span class="comment"># the key created in this shell</span>
 ibmcloud pi ssh-key list
 
-aix_ip=$(terraform output -raw aix_ip_address)
+<span class="comment"># public address printed in the last step</span>
+aix_ip=$(terraform output -raw aix_public_ip)
+<span class="comment"># 3 sent, 3 received</span>
 ping -c3 -q "$aix_ip"
 
+<span class="comment"># playbook directory</span>
 cd ~/tz-lab-terraform-demo/lab/ansible
+<span class="comment"># trailing comma makes a one-host inventory; oslevel, then ping back</span>
 ansible-playbook playbook.yml -i "$aix_ip,"
 
+<span class="comment"># trust the host key with yes; banner is AIX 7.3</span>
 ssh -i ~/.ssh/pvs-lab root@"$aix_ip"</code></pre>
-            </div>
-            <p class="lab-label">Expect</p>
-            <p class="lab-result">The context CRN matches <code>workspace_crn</code>. The instance list shows the AIX server. The SSH key list shows the key created in this shell. Ping reports 3 packets transmitted and 3 received. The playbook retries until port 22 answers, <code>oslevel -s</code> prints an AIX level, and the ping from AIX back to this server gets a reply. SSH prints <code>Welcome to AIX Version 7.3!</code> and the prompt is <code>root</code>.</p>
-          </article>
-        </li>
-      </ol>
-      <p class="lab-after">Destroy stays after class. PowerVS teardown is too slow to spend the session on.</p>
+        </div>
+        <div class="guide-item ansible">
+          <div class="guide-title">Expect</div>
+          The context CRN matches <code>workspace_crn</code>. The instance list shows the AIX server. The SSH key list shows the key created in this shell. Ping reports 3 packets transmitted and 3 received. The playbook retries until port 22 answers, <code>oslevel -s</code> prints an AIX level, and the ping from AIX back to this server gets a reply. SSH prints <code>Welcome to AIX Version 7.3!</code> and the prompt is <code>root</code>.
+        </div>
+        <div class="overview">
+          <div class="guide-title">Overview</div>
+          <dl>
+            <dt>Ansible</dt>
+            <dd><code>ansible-playbook</code> logs in as <code>root</code> with <code>~/.ssh/pvs-lab</code>. The trailing comma is a one-host inventory. The play waits until port 22 answers, runs <code>oslevel -s</code>, and pings back to this machine.</dd>
+            <dt>AIX SSH</dt>
+            <dd>The same key and user, aimed at <code>aix_public_ip</code>. The first connection asks you to trust the host key. The banner is AIX 7.3 and the prompt is <code>root</code>.</dd>
+          </dl>
+        </div>
+      </div>
     </section>
-  </main>
+
+    <p class="after">Destroy stays after class. PowerVS teardown is too slow to spend the session on.</p>
+  </div>
+  <script>
+    function copyTextToClipboard(text) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        return navigator.clipboard.writeText(text).catch(function () {
+          return fallbackCopy(text);
+        });
+      }
+      return fallbackCopy(text);
+    }
+
+    function fallbackCopy(text) {
+      var ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.cssText = "position:fixed;top:-9999px;left:-9999px;opacity:0;";
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      return Promise.resolve();
+    }
+
+    document.querySelectorAll(".terminal").forEach(function (term) {
+      var btn = term.querySelector(".copy");
+      var pre = term.querySelector("pre");
+      if (!btn || !pre) return;
+      btn.addEventListener("click", function () {
+        var clone = pre.cloneNode(true);
+        clone.querySelectorAll(".comment").forEach(function (node) { node.remove(); });
+        var text = clone.textContent.split("\n").map(function (line) {
+          return line.replace(/\s+$/, "");
+        }).filter(function (line) { return line !== ""; }).join("\n") + "\n";
+        copyTextToClipboard(text).then(function () {
+          var orig = btn.innerHTML;
+          btn.innerHTML = "Copied";
+          btn.style.background = "#16a34a";
+          btn.style.borderColor = "#16a34a";
+          setTimeout(function () {
+            btn.innerHTML = orig;
+            btn.style.background = "";
+            btn.style.borderColor = "";
+          }, 1500);
+        });
+      });
+    });
+  </script>
 </body>
 </html>

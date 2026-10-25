@@ -2,7 +2,7 @@
 # ibmcloud_api_key can be omitted when IC_API_KEY is set in the environment.
 #
 # Terraform reads the PowerVS public key from ~/.ssh/pvs-lab.pub.
-# Leave vpc_name unset to create the workspace, network, and key without a VPC.
+# Leave vpc_name unset to create the workspace, networks, and key without a VPC.
 
 region         = "us-south"
 pi_zone        = "dal12"

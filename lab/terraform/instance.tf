@@ -43,9 +43,34 @@ resource "ibm_pi_instance" "aix" {
   pi_pin_policy        = "none"
   pi_health_status     = "WARNING"
 
+  # Both networks are attached at create. A network added later is left
+  # without an address inside AIX, and pi_network changes are ignored after
+  # create, so an existing server is replaced when this public network appears.
+  pi_network {
+    network_id = ibm_pi_network.public.network_id
+  }
+
   pi_network {
     network_id = ibm_pi_network.private.network_id
   }
+
+  lifecycle {
+    replace_triggered_by = [ibm_pi_network.public.id]
+  }
+}
+
+locals {
+  aix_nics = try(ibm_pi_instance.aix[0].pi_network, [])
+
+  aix_private_ip = try([
+    for net in local.aix_nics : net.ip_address
+    if net.network_id == ibm_pi_network.private.network_id || net.network_name == ibm_pi_network.private.pi_network_name
+  ][0], null)
+
+  aix_public_ip = try([
+    for net in local.aix_nics : coalesce(net.external_ip != "" ? net.external_ip : null, net.ip_address)
+    if net.network_id == ibm_pi_network.public.network_id || net.network_name == ibm_pi_network.public.pi_network_name
+  ][0], null)
 }
 
 # Runs on the VPC server where Terraform is executed. The delegate route in
@@ -54,7 +79,7 @@ resource "null_resource" "powervs_route" {
   count = local.create_aix && local.use_vpc ? 1 : 0
 
   triggers = {
-    aix_ip       = ibm_pi_instance.aix[0].pi_network[0].ip_address
+    aix_ip       = local.aix_private_ip
     powervs_cidr = var.powervs_cidr
   }
 
