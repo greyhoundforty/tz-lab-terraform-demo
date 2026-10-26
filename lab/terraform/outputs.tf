@@ -19,7 +19,7 @@ output "workspace_crn" {
 }
 
 output "name_prefix" {
-  description = "Prefix plus the random suffix used on resource names."
+  description = "Prefix used on resource names, for example pvs-07-tf."
   value       = local.name_prefix
 }
 
