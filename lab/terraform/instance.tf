@@ -73,23 +73,32 @@ locals {
   ][0], null)
 }
 
-# Runs on the VPC server where Terraform is executed. The delegate route in
-# the VPC table only forwards packets that arrive at the subnet gateway.
-resource "null_resource" "powervs_route" {
-  count = local.create_aix && local.use_vpc ? 1 : 0
+# AIX's default route leaves on the public network. Replies to the VPC would
+# follow it and never reach the transit gateway, so each VPC prefix is routed
+# through the private network's gateway. The route lasts until AIX reboots.
+resource "null_resource" "aix_vpc_route" {
+  count = local.create_aix ? 1 : 0
 
   triggers = {
-    aix_ip       = local.aix_private_ip
-    powervs_cidr = var.powervs_cidr
+    aix_public_ip = local.aix_public_ip
+    gateway       = local.powervs_gateway
+    prefixes      = jsonencode(values(ibm_is_vpc.lab.default_address_prefixes))
   }
 
-  provisioner "local-exec" {
-    interpreter = ["/bin/bash", "-c"]
-    command     = <<-EOT
-      set -eu
-      addr=$(ip -4 -o addr show scope global | awk '$2 !~ /^(docker|br-|veth|cni)/ {print $4; exit}')
-      gw=$(python3 -c 'import ipaddress,sys; print(next(ipaddress.ip_interface(sys.argv[1]).network.hosts()))' "$addr")
-      sudo -n ip route replace ${var.powervs_cidr} via "$gw"
-    EOT
+  connection {
+    type        = "ssh"
+    user        = "root"
+    host        = local.aix_public_ip
+    private_key = file(local.ssh_private_key_file)
+    timeout     = "10m"
   }
+
+  provisioner "remote-exec" {
+    inline = [
+      for cidr in values(ibm_is_vpc.lab.default_address_prefixes) :
+      "route delete -net ${cidrhost(cidr, 0)} -netmask ${cidrnetmask(cidr)} ${local.powervs_gateway} >/dev/null 2>&1 || true; route add -net ${cidrhost(cidr, 0)} -netmask ${cidrnetmask(cidr)} ${local.powervs_gateway}"
+    ]
+  }
+
+  depends_on = [ibm_is_vpc_routing_table_route.powervs]
 }

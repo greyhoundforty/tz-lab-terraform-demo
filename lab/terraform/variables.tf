@@ -17,7 +17,7 @@ variable "prefix" {
 }
 
 variable "region" {
-  description = "IBM Cloud VPC region of the existing VPC. us-south pairs with PowerVS zone dal12."
+  description = "IBM Cloud region. us-south pairs with PowerVS zone dal12 and VPC zone us-south-1."
   type        = string
   default     = "us-south"
 }
@@ -28,10 +28,26 @@ variable "pi_zone" {
   default     = "dal12"
 }
 
-variable "vpc_name" {
-  description = "Name of an existing VPC to attach with a transit gateway. Leave empty to create only the PowerVS workspace, network, and key."
+variable "resource_group_name" {
+  description = "Resource group name from ibmcloud resource groups. Lab seats are not given the account Default group, so this must be the group listed for the seat."
   type        = string
-  default     = ""
+
+  validation {
+    condition     = length(trimspace(var.resource_group_name)) > 0
+    error_message = "Set resource_group_name to the Name from ibmcloud resource groups. These accounts do not use the Default group."
+  }
+}
+
+variable "vpc_zone" {
+  description = "VPC zone for the Ubuntu server. us-south-1 is in region us-south."
+  type        = string
+  default     = "us-south-1"
+}
+
+variable "vsi_profile" {
+  description = "VPC profile for the Ubuntu server. cx2-2x4 is 2 vCPU and 4 GB."
+  type        = string
+  default     = "cx2-2x4"
 }
 
 variable "ssh_public_key_file" {
@@ -41,7 +57,7 @@ variable "ssh_public_key_file" {
 }
 
 variable "powervs_cidr" {
-  description = "Private CIDR created inside the PowerVS workspace. Must not overlap a subnet in the existing VPC."
+  description = "Private CIDR created inside the PowerVS workspace. Must not overlap the VPC address prefixes."
   type        = string
   default     = "192.168.100.0/24"
 

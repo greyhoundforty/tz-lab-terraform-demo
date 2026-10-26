@@ -1,11 +1,11 @@
 output "vpc_id" {
-  description = "Existing VPC. This stack does not create it."
-  value       = try(data.ibm_is_vpc.existing[0].id, null)
+  description = "VPC created for the Ubuntu server and the transit gateway."
+  value       = ibm_is_vpc.lab.id
 }
 
 output "vpc_crn" {
-  description = "CRN of the existing VPC attached to the transit gateway."
-  value       = try(data.ibm_is_vpc.existing[0].crn, null)
+  description = "CRN of the VPC attached to the transit gateway."
+  value       = ibm_is_vpc.lab.crn
 }
 
 output "workspace_id" {
@@ -24,8 +24,18 @@ output "name_prefix" {
 }
 
 output "ssh_key_name" {
-  description = "PowerVS SSH key imported from the Cloud Shell public key."
+  description = "PowerVS SSH key imported from the lab public key."
   value       = ibm_pi_key.lab.pi_key_name
+}
+
+output "ubuntu_public_ip" {
+  description = "Floating IP of the Ubuntu server. SSH here as user ubuntu."
+  value       = ibm_is_floating_ip.ubuntu.address
+}
+
+output "ubuntu_private_ip" {
+  description = "Private IP of the Ubuntu server on the VPC subnet."
+  value       = ibm_is_instance.ubuntu.primary_network_interface[0].primary_ip[0].address
 }
 
 output "aix_instance_id" {
@@ -34,11 +44,11 @@ output "aix_instance_id" {
 }
 
 output "aix_ip_address" {
-  description = "Private IP of the AIX server on the PowerVS network."
+  description = "Private IP of the AIX server. The Ubuntu server pings this address across the transit gateway."
   value       = local.aix_private_ip
 }
 
 output "aix_public_ip" {
-  description = "Public IP of the AIX server. Cloud Shell and a workstation SSH to this address."
+  description = "Public IP of the AIX server. The lab machine SSHes to this address."
   value       = local.aix_public_ip
 }
