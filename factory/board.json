@@ -1,0 +1,32 @@
+{
+  "jobs": [
+    {
+      "id": "003-resource-tags",
+      "title": "Common tags on PowerVS and VPC resources",
+      "branch": "factory/003-resource-tags",
+      "stage": "review",
+      "round": 2,
+      "builder": "builder-003-resource-tags",
+      "reviews": {
+        "security": "CHANGES",
+        "ux": "PASS",
+        "ui": "pending",
+        "code": "PASS"
+      }
+    },
+    {
+      "id": "004-document-fmt-validate",
+      "title": "Document terraform fmt / validate in README setup",
+      "branch": "factory/004-document-fmt-validate",
+      "stage": "merged",
+      "round": 2,
+      "builder": "builder-004-document-fmt-validate",
+      "reviews": {
+        "security": "PASS",
+        "ux": "PASS",
+        "ui": "PASS",
+        "code": "PASS"
+      }
+    }
+  ]
+}
