@@ -91,7 +91,9 @@ terraform fmt -check -recursive
 terraform validate
 ```
 
-`terraform fmt -check` only reports unformatted files: exit code 0 means clean, and a non-zero exit lists the files, which `terraform fmt` without `-check` rewrites. `terraform validate` needs `terraform init` first and checks syntax and the provider schema without calling IBM Cloud or needing `IC_API_KEY`. Expect `fmt -check` to print nothing and `terraform validate` to print `Success! The configuration is valid.`
+`terraform fmt -check` only lists unformatted files, and exits 0 when all are clean and non-zero when any are not. Run `terraform fmt` without `-check` to rewrite them. `terraform validate` needs `terraform init` first and checks syntax and the provider schema without calling IBM Cloud or needing `IC_API_KEY`.
+
+Expect no output from `fmt -check`, and `Success! The configuration is valid.` from `validate`. If either check fails, fix what it names before you plan.
 
 ```bash
 terraform plan -out default.tfplan
