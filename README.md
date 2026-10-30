@@ -81,6 +81,19 @@ powervs_cidr        = "192.168.100.0/24"
 aix_image_name      = ""
 EOF
 terraform init
+```
+
+Check the code before you plan:
+
+```bash
+cd ~/tz-lab-terraform-demo/lab/terraform
+terraform fmt -check -recursive
+terraform validate
+```
+
+`terraform fmt -check` only reports unformatted files: exit code 0 means clean, and a non-zero exit lists the files, which `terraform fmt` without `-check` rewrites. `terraform validate` needs `terraform init` first and checks syntax and the provider schema without calling IBM Cloud or needing `IC_API_KEY`. Expect `fmt -check` to print nothing and `terraform validate` to print `Success! The configuration is valid.`
+
+```bash
 terraform plan -out default.tfplan
 ```
 
